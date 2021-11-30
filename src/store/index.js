@@ -1,4 +1,5 @@
 import { createStore } from "vuex";
+import persistedState from 'vuex-persistedstate' //首先引入
 
 const store = createStore({
   state:() =>({
@@ -13,7 +14,8 @@ const store = createStore({
     setUserInfo:(ctx,value) => {
       ctx.commit('userInfo',value);
     }
-  }
+  },
+  plugins: [persistedState ()] 
 })
 
 export default store

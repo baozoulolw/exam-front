@@ -32,6 +32,9 @@ import Cookies from 'js-cookie'
 import $store from '../../store/index'
 import qs from 'qs'
 import { ElMessage } from 'element-plus'
+import { useRouter } from "vue-router";
+
+const router = useRouter(); //路由
 const data = reactive({
   loginParam: {
     username: '',
@@ -45,7 +48,9 @@ const toLogin = async () => {
   let res = await post('/login', qs.stringify(data.loginParam))
   if (res.status === 2000) {
     Cookies.set('token', res.data.token);
+    Cookies.set('user',JSON.stringify(res.data.user));
     $store.dispatch('setUserInfo', res.data.user)
+    router.push({ path: "/manage_home" });
   } else {
     ElMessage.error(res.desc);
   }
