@@ -1,25 +1,25 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-import {qs} from 'qs'
+import qs from 'qs'
 import {
   ElLoading,
   ElMessage
 } from 'element-plus';
 
 const instance = axios.create({
-  baseURL:'http://localhost:8001',
+  baseURL:'',
   timeout:6000,
-  headers:{
-    'Content-Type': 'application/json;charset=UTF-8;'
-  }
 })
 
 //请求拦截器 
 instance.interceptors.request.use((config) => {
+  console.log(!!Cookies.get('token'));
+  console.log(config);
   //showLoading()
   if (Cookies.get('token')) config.headers.Authorization = Cookies.get('token')
-  // if (config.method === 'POST') {
-  //     config.data = qs.stringify(config.data);
+  // if (config.method === 'post') {
+  //   config.data = qs.stringify(config.data);
+  //   console.log(config.data);
   // }
   return config;
 }, (error) =>
@@ -84,9 +84,9 @@ instance.interceptors.response.use((response) => {
 
  export function get(url, params = {}) {
   return new Promise((resolve, reject) => {
-    axios.get('/api'+url, params
+    instance.get('/api'+url, params
     ).then(response => {
-      resolve(response.data);
+      resolve(response);
     }).catch(err => {
       reject(err);
     });
@@ -102,9 +102,9 @@ instance.interceptors.response.use((response) => {
 
  export function post(url, params = {}) {
   return new Promise((resolve, reject) => {
-    axios.post('/api'+url,params
+    instance.post('/api'+url,params
     ).then(response => {
-      resolve(response.data);
+      resolve(response);
     }).catch(err => {
       reject(err);
     });

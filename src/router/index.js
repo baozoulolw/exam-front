@@ -1,37 +1,53 @@
-import { createRouter,createWebHashHistory,createWebHistory } from "vue-router";
+import { createRouter, createWebHashHistory, createWebHistory } from "vue-router";
 import { getToken } from "../utils/utils";
 import { ElMessage } from "element-plus";
 
 const routes = [
   {
-    path:'/',
+    path: '/',
     redirect: '/manage_home'
   },
   {
-    path:'/login',
-    name:'login',
+    path: '/login',
+    name: 'login',
     component: () => import('../views/login/Login.vue')
   },
   {
-    path:'/manage_home',
-    meta:{
-      title:'首页'
+    path: '/manage_home',
+    meta: {
+      title: '首页'
     },
     component: () => import('../views/manage/ManageHome.vue'),
-    children:[
+    children: [
       {
         path: "/homePage",
         meta: {
-            title: '首页'
+          title: '首页'
         },
         component: () => import("../views/manage/homePage/homePage.vue")
-    },
+      },
+      {
+        path:'/setting',
+        meta:{
+          title:'设置'
+        },
+        component: () => import('../views/manage/setting/Setting.vue'),
+        children:[
+          {
+            path:'/role',
+            meta:{
+              title:'角色管理'
+            },
+            component:() => import('../views/manage/role/RoleManage.vue')
+          }
+        ]
+      }
     ]
   }
 ]
 
 const router = createRouter({
-  history:createWebHistory(),
+  history: createWebHistory(),
   routes
 })
 
@@ -43,22 +59,21 @@ router.beforeEach((to, from, next) => {
   const user = getToken();//获取token to.path !== '/login'
   //NProgress.start();// 路由跳转前钩子函数中 - 执行进度条开始加载
   if (!to.matched.length) {
-      next('/404');
+    next('/404');
   }
   if (user) {
-      if (to.path === '/') {
-          next();
-      } else {
-          next();
-      }
+    if (to.path === '/') {
+      next();
+    } else {
+      next();
+    }
   } else {
-      if (whiteList.includes(to.path)) {  //如果是白名单无须token则直接进入
-          next();
-      } else {
-          ElMessage.error("无登陆凭证,无法访问,请先登陆!")
-          next('/login')
-      }
-
+    if (whiteList.includes(to.path)) {  //如果是白名单无须token则直接进入
+      next();
+    } else {
+      ElMessage.error("无登陆凭证,无法访问,请先登陆!")
+      next('/login')
+    }
   }
 });
 

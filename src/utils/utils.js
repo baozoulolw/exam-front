@@ -9,5 +9,5 @@ export function getToken() {
 }
 
 export function getUser() {
-  return JSON.parse(Cookies.get("user"));
+  return JSON.parse(localStorage.getItem("user"));
 }

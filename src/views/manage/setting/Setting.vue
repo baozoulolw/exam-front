@@ -1,7 +1,5 @@
 <template>
-  <div>
-    abcdef
-  </div>
+  <router-view/>
 </template>
 
 <script setup>

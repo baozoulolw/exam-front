@@ -4,10 +4,10 @@
       <div class='title'>在线考试系统</div>
       <el-form :model="data.loginParam" style="width: 100%;">
         <el-form-item prop="username">
-          <el-input :suffix-icon="Avatar" type="text" v-model="data.loginParam.username"></el-input>
+          <el-input type="text" v-model="data.loginParam.username"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input :suffix-icon="Unlock" v-model="data.loginParam.password" type="password"></el-input>
+          <el-input v-model="data.loginParam.password" type="password"></el-input>
         </el-form-item>
         <el-form-item>
           <el-radio-group v-model="data.radio" style="display:flex">
@@ -45,10 +45,11 @@ const data = reactive({
 })
 const toLogin = async () => {
   data.butLoad = true;
-  let res = await post('/login', qs.stringify(data.loginParam))
+  let res = await post('/login', qs.stringify(data.loginParam));
+  console.log(res);
   if (res.status === 2000) {
     Cookies.set('token', res.data.token);
-    Cookies.set('user',JSON.stringify(res.data.user));
+    localStorage.setItem('user',JSON.stringify(res.data.user));
     $store.dispatch('setUserInfo', res.data.user)
     router.push({ path: "/manage_home" });
   } else {
