@@ -13,7 +13,7 @@
       @close="handleClose"
     >
       <div class="logo">
-        <el-image style="width: 30px; height: 30px;" :src="logo" :fit="fit"></el-image>
+        <el-image style="width: 30px; height: 30px;" :src="logo" fit="fill"></el-image>
         <span v-show='!proData.menuCollapse' style="margin-left:10px">Online-Exam</span>
       </div>
       <el-menu-item index="/homePage">

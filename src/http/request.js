@@ -13,8 +13,6 @@ const instance = axios.create({
 
 //请求拦截器 
 instance.interceptors.request.use((config) => {
-  console.log(!!Cookies.get('token'));
-  console.log(config);
   //showLoading()
   if (Cookies.get('token')) config.headers.Authorization = Cookies.get('token')
   // if (config.method === 'post') {
