@@ -1,30 +1,27 @@
 <template>
   <div class="main">
     <div class="search">
-      <el-input v-model="data.params.param.roleName" placeholder="输入角色名" class="margin-r wit-3"></el-input>
+      <el-input v-model="data.params.param.keyword" placeholder="输入关键字" class="margin-r wit-3"></el-input>
+      <el-select v-model="data.params.param.gradeId" class="margin-r wit-3"></el-select>
+      <el-select v-model="data.params.param.classId" class="margin-r wit-3"></el-select>
       <el-button @click="toSearch" :loading="data.searchLoad">搜索</el-button>
-      <el-button @click="addRole">添加角色</el-button>
+      <el-button @click="addUser">添加人员</el-button>
     </div>
     <el-table :data="data.tableData" border style="width: 100%" v-loading="data.tableLoad">
-      <el-table-column label="角色名称" prop="roleName" width="200"></el-table-column>
-      <el-table-column label="备注" prop="remark"></el-table-column>
-      <el-table-column label="是否为默认角色" width="150">
-        <template #default="scope">
-          <div style="text-align: center;">
-            <el-tag type="success">{{ scope.row.isDefault === '0' ? '否' : '是' }}</el-tag>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column label="创建时间" prop="createTime" width="180">
+    <el-table-column label="所在班级">
         <template #default="scope">
           <span
-            class="table-span"
-            :title="scope.row.createTime"
-          >{{ scope.row.createTime ? scope.row.createTime : '---' }}</span>
+            :span="scope.row.classExam ? scope.row.classExam.className : '--'"
+          >{{ scope.row.classExam ? scope.row.classExam.className : '--' }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="最后修改时间" prop="changeTime"></el-table-column>
-      <el-table-column label="最后操作人" prop="changeUserName"></el-table-column>
+      <el-table-column label="姓名" prop="realName" width="200"></el-table-column>
+      <el-table-column label="性别" prop="gender"></el-table-column>
+      <el-table-column label="手机号" prop="phone"></el-table-column>
+      <el-table-column label="地址" prop="address" width="180"></el-table-column>
+      <el-table-column label="创建时间" prop="createTime" width="180"></el-table-column>
+      <el-table-column label="最后修改时间" prop="changeTime" width="180"></el-table-column>
+      <el-table-column label="最后操作人" prop="changeUser"></el-table-column>
       <el-table-column label="操作" width="120">
         <template #default="scope">
           <div class="table-operate">
@@ -46,7 +43,6 @@
         :total="data.total"
       ></el-pagination>
     </div>
-    <EditRole v-if='data.visible' v-model:visible="data.visible" :roleData="data.editFormData" :type="data.type" @close='getRoleList'></EditRole>
   </div>
 </template>
 
@@ -54,13 +50,14 @@
 import { ElMessage, ElSelect } from 'element-plus';
 import { reactive, onMounted } from 'vue'
 import { post } from '../../../http/request'
-import EditRole from './EditRole.vue';
 const data = reactive({
   params: {
     pageNumber: 1,
     pageSize: 10,
     param: {
-      roleName: '',
+      keyword: '',
+      classId: '',
+      gradeId: ''
     }
   },
   total: 0,
@@ -71,9 +68,9 @@ const data = reactive({
   searchLoad: false,
   tableLoad: false
 })
-const getRoleList = async () => {
+const getUserList = async () => {
   data.tableLoad = true;
-  let res = await post('/role/roleList', data.params);
+  let res = await post('/user/userList', data.params);
   if (res.status === 1000) {
     data.tableData = res.data.list;
     data.total = Number(res.data.totalCount);
@@ -86,20 +83,20 @@ const getRoleList = async () => {
 const toSearch = () => {
   data.params.pageNumber = 1;
   data.searchLoad = true;
-  getRoleList().then(() => data.searchLoad = false);
+  getUserList().then(() => data.searchLoad = false);
 }
 
 const handleCurrentChange = val => {
   data.params.pageNumber = val;
-  getRoleList();
+  getUserList();
 }
 const handleSizeChange = val => {
   data.params.pageSize = val;
   data.params.pageNumber = 1;
-  getRoleList();
+  getUserList();
 }
 
-const addRole = () => {
+const addUser = () => {
   data.type = 'add';
   data.visible = true;
 }
@@ -110,7 +107,7 @@ const edit = row => {
   data.visible = true;
 }
 onMounted(() => {
-  getRoleList();
+  getUserList();
 })
 </script>
 <style scoped lang='less'>

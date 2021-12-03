@@ -51,7 +51,8 @@ const toLogin = async () => {
     Cookies.set('token', res.data.token);
     localStorage.setItem('user',JSON.stringify(res.data.user));
     $store.dispatch('setUserInfo', res.data.user)
-    router.push({ path: "/manage_home" });
+    let path = data.radio === 1 ? '/student_home':'/manage_home';
+    router.push({ path });
   } else {
     ElMessage.error(res.desc);
   }

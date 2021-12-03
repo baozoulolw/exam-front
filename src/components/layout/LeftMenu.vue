@@ -29,7 +29,9 @@
           </el-icon>
           <span>设置</span>
         </template>
+        <el-menu-item index="/user">成员设置</el-menu-item>
         <el-menu-item index="/role">角色设置</el-menu-item>
+        <el-menu-item index="/resource">资源设置</el-menu-item>
       </el-sub-menu>
     </el-menu>
   </div>

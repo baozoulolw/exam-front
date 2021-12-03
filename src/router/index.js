@@ -5,7 +5,7 @@ import { ElMessage } from "element-plus";
 const routes = [
   {
     path: '/',
-    redirect: '/manage_home'
+    redirect: '/login'
   },
   {
     path: '/login',
@@ -34,15 +34,36 @@ const routes = [
         component: () => import('../views/manage/setting/Setting.vue'),
         children:[
           {
+            path:'/user',
+            meta:{
+              title:'成员管理'
+            },
+            component:() => import('../views/manage/user/UserManage.vue')
+          },
+          {
             path:'/role',
             meta:{
               title:'角色管理'
             },
             component:() => import('../views/manage/role/RoleManage.vue')
+          },
+          {
+            path:'/resource',
+            meta:{
+              title:'资源管理'
+            },
+            component:() => import('../views/manage/resource/ResourceManage.vue')
           }
         ]
       }
     ]
+  },
+  {
+    path: '/student_home',
+    meta: {
+      title: '首页'
+    },
+    component: () => import('../views/student/StudentHome.vue'),
   }
 ]
 
