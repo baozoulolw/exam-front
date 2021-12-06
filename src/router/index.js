@@ -64,6 +64,16 @@ const routes = [
       title: '首页'
     },
     component: () => import('../views/student/StudentHome.vue'),
+    children:[
+      {
+        path: '/student_home',
+        redirect: '/navigation'
+      },
+      {
+        path:'/navigation',
+        component: () => import('../views/student/navigation/Navigation.vue')
+      }
+    ]
   }
 ]
 

@@ -22,5 +22,9 @@ onMounted(() => {
 :deep(.el-main) {
   height: calc(100vh - 60px);
   background: #ece9e6; /* fallback for old browsers */
+  .main{
+  height: calc(100vh - 100px);
+  background: white;
+}
 }
 </style>
