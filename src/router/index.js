@@ -20,6 +20,10 @@ const routes = [
     component: () => import('../views/manage/ManageHome.vue'),
     children: [
       {
+        path: '/manage_home',
+        redirect: '/homePage'
+      },
+      {
         path: "/homePage",
         meta: {
           title: '首页'
@@ -54,6 +58,22 @@ const routes = [
             },
             component:() => import('../views/manage/resource/ResourceManage.vue')
           }
+        ]
+      },
+      {
+        path:'/question',
+        meta:{
+          title:'题库'
+        },
+        component: () => import('../views/manage/question/Question.vue'),
+        children:[
+          {
+            path:'/questions',
+            meta:{
+              title:'题库管理'
+            },
+            component:() => import('../views/manage/question/questionManage/QuestionManage.vue')
+          },
         ]
       }
     ]

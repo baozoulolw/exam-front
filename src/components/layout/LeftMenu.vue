@@ -25,6 +25,15 @@
       <el-sub-menu index="2">
         <template #title>
           <el-icon>
+            <Reading />
+          </el-icon>
+          <span>题库</span>
+        </template>
+        <el-menu-item index="/questions">题库管理</el-menu-item>
+      </el-sub-menu>
+      <el-sub-menu index="3">
+        <template #title>
+          <el-icon>
             <Setting />
           </el-icon>
           <span>设置</span>
@@ -42,7 +51,7 @@ import { reactive, onMounted, inject } from 'vue'
 import logo from '../../assets/img/logo.svg'
 import {
   Location,
-  House,Setting
+  House,Setting,Reading
 } from '@element-plus/icons'
 const data = reactive({})
 let proData = inject('proData');
