@@ -3,7 +3,7 @@
     <div class="search">
       <el-input v-model="data.params.param.keyword" placeholder="输入关键词" class="margin-r wit-3"></el-input>
       <el-button @click="toSearch" :loading="data.searchLoad">搜索</el-button>
-      <el-button @click="addRole">添加角色</el-button>
+      <el-button @click="addQuestion">添加试题</el-button>
     </div>
     <el-table :data="data.tableData" border style="width: 100%" v-loading="data.tableLoad">
       <el-table-column label="题目" prop="topic" width="200"></el-table-column>
@@ -43,6 +43,7 @@
 
 <script setup>
 import { reactive, onMounted } from 'vue'
+import { post } from '../../../../http/request';
 const data = reactive({
   params: {
     pageNumber: 1,
@@ -56,7 +57,9 @@ const data = reactive({
   total: 0,
   tableData: [],
   searchLoad: false,
-  tableLoad: false
+  tableLoad: false,
+  editType:'add',
+  editQuestion:{},
 })
 
 const getQuestionList = async () => {
@@ -85,6 +88,10 @@ const handleSizeChange = val => {
   data.params.pageSize = val;
   data.params.pageNumber = 1;
   getQuestionList();
+}
+
+const addQuestion = () => {
+
 }
 
 onMounted(() => {
