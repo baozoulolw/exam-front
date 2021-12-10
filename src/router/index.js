@@ -92,6 +92,10 @@ const routes = [
       {
         path:'/navigation',
         component: () => import('../views/student/navigation/Navigation.vue')
+      },
+      {
+        path:'/exercise',
+        component: () => import('../views/student/exercise/Exercise.vue')
       }
     ]
   }

@@ -3,17 +3,24 @@
     <transition name="el-zoom-in-center">
       <div v-if="data.showList">
         <div class="search">
-          <el-input v-model="data.params.param.keyword" placeholder="输入关键词" class="margin-r wit-3"></el-input>
-          <el-select v-model="data.params.param.type" placeholder="请选择题型" style="margin-right:10px">
+          <el-input v-model="data.params.param.keyword" placeholder="输入关键词" class="margin-r wit-3" clearable></el-input>
+          <el-select v-model="data.params.param.type" placeholder="请选择题型" style="margin-right:10px" clearable>
             <el-option v-for="item in data.qTypes" :key="item.value" :value="item.value" :label="item.label"></el-option>
           </el-select>
-          <el-select v-model="data.params.param.hard" placeholder="请选择难度" style="margin-right:20px">
+          <el-select v-model="data.params.param.hard" placeholder="请选择难度" style="margin-right:20px" clearable>
             <el-option v-for="item in data.qHards" :key="item.value" :value="item.value" :label="item.label"></el-option>
           </el-select>
           <el-button @click="toSearch" :loading="data.searchLoad" type="primary">搜索</el-button>
           <el-button @click="addQuestion" type="primary" plain>添加试题</el-button>
         </div>
         <el-table :data="data.tableData" border style="width: 100%" v-loading="data.tableLoad">
+          <el-table-column label="序号" width="50" align='center' header-align='left'>
+            <template #default="scope">
+              <span
+                class="table-span"
+              >{{(data.params.pageNumber-1)*data.params.pageSize+scope.$index+1}}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="题目" prop="topic">
             <template #default="scope">
               <span

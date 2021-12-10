@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="main">
     <el-container>
       <el-header>
         <Header></Header>
@@ -19,12 +19,13 @@ onMounted(() => {
 })
 </script>
 <style scoped lang='less'>
+//background: url('../../assets/img/bac.jpg');
 :deep(.el-main) {
   height: calc(100vh - 60px);
   background: #ece9e6; /* fallback for old browsers */
-  .main{
-  height: calc(100vh - 100px);
-  background: white;
-}
+  .main {
+    height: calc(100vh - 100px);
+    background: white;
+  }
 }
 </style>
