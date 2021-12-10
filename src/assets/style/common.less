@@ -1,13 +1,10 @@
 :deep(.el-radio__inner::after) {
-  width: 7px !important;
-  height: 7px !important;
+  width: 9px !important;
+  height: 9px !important;
   background-color: #409eff;
 }
-
-:deep(.el-radio):not(.is-checked) {
-  .el-radio__label {
-    color: white;
-  }
+:deep(.el-radio__input.is-checked .el-radio__inner){
+  background: unset;
 }
 
 // 默认输入框长度

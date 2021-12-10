@@ -1,13 +1,18 @@
 <template>
   <div class="edit-main" v-loading="data.saveLoad">
     <div class="operate">
-      <el-button @click="save()">保存</el-button>
-      <el-button @click="backList()">返回</el-button>
+      <el-button @click="save()" type="primary">保存</el-button>
+      <el-button @click="backList()" type="primary" plain>
+        返回
+        <el-icon class="el-icon--right">
+          <CaretRight />
+        </el-icon>
+      </el-button>
     </div>
     <div class="body-question">
       <div class="head-type">
         <div class="label">题型</div>
-        <el-select v-model="data.question.type" style="margin-right:40px">
+        <el-select v-model="data.question.type" style="margin-right:40px" @change="changeType">
           <el-option
             v-for="item in data.types"
             :key="item.value"
@@ -29,7 +34,8 @@
         <div class="label">题目</div>
         <el-input v-model="data.question.topic" :rows="4" type="textarea"></el-input>
       </div>
-      <div class="content">
+      <!-- 单选题 -->
+      <div class="content" v-if="data.question.type === 0">
         <section class="option">
           <div class="label">答案</div>
           <el-select v-model="data.answer">
@@ -46,6 +52,64 @@
           <el-input v-model="item.value" :rows="2" type="textarea" placeholder="请填写选项内容"></el-input>
         </section>
       </div>
+      <!-- 多选题 -->
+      <div class="content" v-if="data.question.type === 1">
+        <section class="option">
+          <div class="label">答案</div>
+          <el-select v-model="data.manyAnswer" multiple style="width:600px;margin-right: auto;">
+            <el-option
+              v-for="item in data.options"
+              :key="item.option"
+              :value="item.option"
+              :label="`选项${item.option}`"
+            ></el-option>
+          </el-select>
+          <el-button :icon="CirclePlus" @click="addOption">添加选项</el-button>
+        </section>
+        <section v-for="(item,index) in data.options" :key="item.option" class="option">
+          <div class="label">选项{{ item.option }}:</div>
+          <el-input
+            v-model="item.value"
+            :rows="2"
+            type="textarea"
+            placeholder="请填写选项内容"
+            style="margin-right:10px"
+          ></el-input>
+          <el-button :icon="Plus" @click="addOption(index + 1)" type="primary" plain></el-button>
+          <el-button :icon="Minus" @click="delOption(index)" type="danger" plain></el-button>
+        </section>
+      </div>
+      <!-- 判断题 -->
+      <div class="content" v-if="data.question.type === 2">
+        <section class="option">
+          <div class="label">答案</div>
+          <div>
+            <el-radio-group v-model="data.judgeAnswer" style="display:flex">
+              <el-radio :label="0">错误</el-radio>
+              <el-radio :label="1">正确</el-radio>
+            </el-radio-group>
+          </div>
+        </section>
+      </div>
+      <!-- 填空题 -->
+      <div class="content" v-if="data.question.type === 3">
+        <section class="option">
+          <div class="label">答案</div>
+          <el-button :icon="CirclePlus" @click="addFill(data.fillAnswer.length)">添加填空</el-button>
+        </section>
+        <section v-for="(item,index) in data.fillAnswer" :key="index" class="option">
+          <div class="label">填空{{ index+1 }}:</div>
+          <el-input
+            v-model="item.value"
+            :rows="2"
+            type="textarea"
+            placeholder="请填写填空答案"
+            style="margin-right:10px"
+          ></el-input>
+          <el-button :icon="Plus" @click="addFill(index + 1)" type="primary" plain></el-button>
+          <el-button :icon="Minus" @click="delFill(index)" type="danger" plain></el-button>
+        </section>
+      </div>
     </div>
   </div>
 </template>
@@ -54,6 +118,9 @@
 import { ElMessage } from 'element-plus'
 import { reactive, onMounted } from 'vue'
 import { post } from '../../../../http/request'
+import {
+  CirclePlus, Plus, Minus, CaretRight
+} from '@element-plus/icons'
 const props = defineProps({
   control: Boolean,
   editType: String,
@@ -86,7 +153,10 @@ const data = reactive({
     { option: 'D', value: '' }
   ],
   answer: 'A',
-  saveLoad: false
+  saveLoad: false,
+  manyAnswer: ['A'],
+  judgeAnswer: 1,
+  fillAnswer:[{value:''}]
 })
 
 const addQuestion = async () => {
@@ -101,16 +171,104 @@ const addQuestion = async () => {
   }
 }
 
+const editQuestion = async () => {
+  data.saveLoad = true;
+  let { id, type, topic, hard, options, answer } = data.question;
+  let obj = {
+    id, type, topic, hard, options, answer
+  }
+  let res = await post('/question/edit', obj);
+  data.saveLoad = false;
+  if (res.status === 1000) {
+    ElMessage.success('保存成功');
+    backList();
+  } else {
+    ElMessage.error(res.desc);
+  }
+}
+
+const computeOptions = () => {
+  data.options.forEach((item, index) => {
+    item.option = String.fromCharCode('A'.charCodeAt(0) + index);
+  })
+}
+
 const backList = () => {
   emit('update:control', true);
+}
+
+const changeType = val => {
+  if (val === 0 || val === 1) {
+    data.options = [
+      { option: 'A', value: '' },
+      { option: 'B', value: '' },
+      { option: 'C', value: '' },
+      { option: 'D', value: '' }
+    ]
+    data.answer = 'A';
+    data.manyAnswer = ['A'];
+  }
+  if(val === 2){
+    data.judgeAnswer = 1;
+  }
+  if(val === 3){
+    data.fillAnswer = [{value:''}];
+  }
+}
+
+const addFill = index => {
+  data.fillAnswer.splice(index,0,{value:''})
+}
+
+const delFill = index => {
+  if (data.options.length === 1) {
+    ElMessage.warning('填空数量不得小于1');
+    return;
+  }
+  data.fillAnswer.splice(index, 1);
+}
+
+const addOption = index => {
+  if (data.options.length === 7) {
+    ElMessage.warning('选项数量不得大于七');
+    return;
+  }
+  if (index) {
+    console.log(index);
+    data.options.splice(index, 0, { option: 0, value: '' });
+  } else {
+    console.log('1231231');
+    data.options.push({ option: 0, value: '' })
+  }
+  computeOptions();
+}
+
+const delOption = index => {
+  if (data.options.length === 4) {
+    ElMessage.warning('选项数量不得小于四');
+    return;
+  }
+  data.options.splice(index, 1);
+  computeOptions();
 }
 
 const save = () => {
   if (data.question.type === 0) {
     data.question.options = JSON.stringify(data.options);
     data.question.answer = data.answer;
+  } else if (data.question.type === 1) {
+    data.question.options = JSON.stringify(data.options);
+    data.question.answer = JSON.stringify(data.manyAnswer);
+  } else if (data.question.type === 2) {
+    data.question.answer = data.judgeAnswer;
+  }else{
+    data.question.answer = JSON.stringify(data.fillAnswer);
   }
-  addQuestion();
+  if (props.editType === 'add') {
+    addQuestion();
+  } else {
+    editQuestion();
+  }
 }
 onMounted(() => {
   if (props.editType === 'edit') {
@@ -119,6 +277,16 @@ onMounted(() => {
     if (props.data.type === 0) {
       data.options = JSON.parse(props.data.options);
       data.answer = props.data.answer;
+    }
+    if (props.data.type === 1) {
+      data.options = JSON.parse(props.data.options);
+      data.manyAnswer = JSON.parse(props.data.answer);
+    }
+    if (props.data.type === 2){
+      data.judgeAnswer = props.data.answer;
+    }
+    if(props.data.type === 3){
+      data.fillAnswer = JSON.parse(props.data.answer);
     }
   }
 })

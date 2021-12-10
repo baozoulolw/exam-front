@@ -4,11 +4,38 @@
       <div v-if="data.showList">
         <div class="search">
           <el-input v-model="data.params.param.keyword" placeholder="输入关键词" class="margin-r wit-3"></el-input>
-          <el-button @click="toSearch" :loading="data.searchLoad">搜索</el-button>
-          <el-button @click="addQuestion">添加试题</el-button>
+          <el-select v-model="data.params.param.type" placeholder="请选择题型" style="margin-right:10px">
+            <el-option v-for="item in data.qTypes" :key="item.value" :value="item.value" :label="item.label"></el-option>
+          </el-select>
+          <el-select v-model="data.params.param.hard" placeholder="请选择难度" style="margin-right:20px">
+            <el-option v-for="item in data.qHards" :key="item.value" :value="item.value" :label="item.label"></el-option>
+          </el-select>
+          <el-button @click="toSearch" :loading="data.searchLoad" type="primary">搜索</el-button>
+          <el-button @click="addQuestion" type="primary" plain>添加试题</el-button>
         </div>
         <el-table :data="data.tableData" border style="width: 100%" v-loading="data.tableLoad">
-          <el-table-column label="题目" prop="topic"></el-table-column>
+          <el-table-column label="题目" prop="topic">
+            <template #default="scope">
+              <span
+                class="table-span"
+                :title="scope.row.topic"
+              >{{scope.row.topic}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="题型" width="100">
+            <template #default="scope">
+              <span
+                class="table-span"
+              >{{data.types[scope.row.type]}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="难度" width="100">
+            <template #default="scope">
+              <span
+                class="table-span"
+              >{{data.hards[scope.row.hard]}}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="创建时间" prop="createTime" width="180">
             <template #default="scope">
               <span
@@ -67,6 +94,19 @@ const data = reactive({
       hard: ''
     }
   },
+  qTypes: [
+    { value: 0, label: '单选题' },
+    { value: 1, label: '多选题' },
+    { value: 2, label: '判断题' },
+    { value: 3, label: '填空题' },
+  ],
+  qHards: [
+    { value: 0, label: '简单' },
+    { value: 1, label: '中等' },
+    { value: 2, label: '困难' },
+  ],
+  types: ['单选题','多选题','判断题','填空题'],
+  hards: ['简单','中等','困难'],
   total: 0,
   tableData: [],
   searchLoad: false,

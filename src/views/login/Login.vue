@@ -1,7 +1,7 @@
 <template>
   <div class="login-body">
     <div class="form">
-      <div class='title'>在线考试系统</div>
+      <div class="title">在线考试系统</div>
       <el-form :model="data.loginParam" style="width: 100%;">
         <el-form-item prop="username">
           <el-input type="text" v-model="data.loginParam.username"></el-input>
@@ -40,8 +40,8 @@ const data = reactive({
     username: '',
     password: ''
   },
-  radio:1,
-  butLoad:false
+  radio: 1,
+  butLoad: false
 })
 const toLogin = async () => {
   data.butLoad = true;
@@ -49,9 +49,9 @@ const toLogin = async () => {
   console.log(res);
   if (res.status === 2000) {
     Cookies.set('token', res.data.token);
-    localStorage.setItem('user',JSON.stringify(res.data.user));
+    localStorage.setItem('user', JSON.stringify(res.data.user));
     $store.dispatch('setUserInfo', res.data.user)
-    let path = data.radio === 1 ? '/student_home':'/manage_home';
+    let path = data.radio === 1 ? '/student_home' : '/manage_home';
     router.push({ path });
   } else {
     ElMessage.error(res.desc);
@@ -93,11 +93,16 @@ onMounted(() => {
     padding: 60px 100px;
     border-radius: 20px;
     background: rgba(0, 0, 0, 0.1);
-    .title{
+    .title {
       font-size: 30px;
       position: relative;
-      top:-40px;
+      top: -40px;
       left: -60px;
+    }
+    :deep(.el-radio):not(.is-checked) {
+      .el-radio__label {
+        color: white;
+      }
     }
     :deep(.el-input__inner) {
       height: 50px;
@@ -112,9 +117,9 @@ onMounted(() => {
       color: white;
     }
     :deep(.submit:hover) {
-      background: #409EFF;
+      background: #409eff;
     }
-    :deep(.el-radio__inner){
+    :deep(.el-radio__inner) {
       background: transparent;
       border-color: rgba(128, 138, 135, 1);
     }
