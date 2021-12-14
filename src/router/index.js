@@ -74,6 +74,13 @@ const routes = [
             },
             component:() => import('../views/manage/question/questionManage/QuestionManage.vue')
           },
+          {
+            path:'/paper',
+            meta:{
+              title:'试卷管理'
+            },
+            component:() => import('../views/manage/question/paper/PaperManage.vue')
+          },
         ]
       }
     ]
