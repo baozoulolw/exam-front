@@ -30,6 +30,7 @@
           <span>题库</span>
         </template>
         <el-menu-item index="/questions">题库管理</el-menu-item>
+        <el-menu-item index="/paper">试卷管理</el-menu-item>
       </el-sub-menu>
       <el-sub-menu index="3">
         <template #title>
