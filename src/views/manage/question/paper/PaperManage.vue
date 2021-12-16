@@ -22,7 +22,7 @@
       </el-select>
       <el-button @click="toSearch" :loading="data.searchLoad" type="primary">搜索</el-button>
     </div>
-    <div v-loading="data.paperLoad" class="papers">
+    <el-scrollbar  v-loading="data.paperLoad" view-class="papers">
       <section v-for="item in data.papers" :key="item.id" class="item">
         <div class="title flex"><span>{{ item.paperName }}</span></div>
         <div class="remark flex"><span>{{ item.remark }}</span></div>
@@ -32,7 +32,7 @@
           <el-image :src="hard" style="height: 14px;"></el-image><span>{{ `难度: ${item.hard === 0 ? '简单' : item.hard === 1 ? '中等' : '困难'}` }}</span>
         </div>
       </section>
-    </div>
+    </el-scrollbar>
   </div>
 </template>
 
@@ -96,13 +96,19 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
 
-  .papers {
+  :deep(.papers) {
     padding: 20px 0;
     flex: 1;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
 
     .item {
       height: 200px;
-      width: 400px;
+      width: 380px;
+      margin-right: 20px;
+      margin-bottom: 20px;
       border-radius: 6px;
       padding: 20px;
       box-shadow: 0 0 4px 2px rgba(217,222,234,0.3);
