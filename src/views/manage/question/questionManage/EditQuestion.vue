@@ -48,7 +48,7 @@
           </el-select>
         </section>
         <section v-for="item in data.options" :key="item.option" class="option">
-          <div class="label">选项{{ item.option }}:</div>
+          <div class="label"><el-tag :type="data.answer === item.option ? 'success':'danger'">{{item.option}}</el-tag></div>
           <el-input v-model="item.value" :rows="2" type="textarea" placeholder="请填写选项内容"></el-input>
         </section>
       </div>
@@ -67,7 +67,7 @@
           <el-button :icon="CirclePlus" @click="addOption">添加选项</el-button>
         </section>
         <section v-for="(item,index) in data.options" :key="item.option" class="option">
-          <div class="label">选项{{ item.option }}:</div>
+          <div class="label"><el-tag :type="data.manyAnswer.some(v => item.option === v) ? 'success':'danger'">{{item.option}}</el-tag></div>
           <el-input
             v-model="item.value"
             :rows="2"

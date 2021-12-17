@@ -81,6 +81,14 @@ const routes = [
             },
             component:() => import('../views/manage/question/paper/PaperManage.vue')
           },
+          {
+            path:'/paper_details',
+            meta:{
+              title:'试卷详情'
+            },
+            props: route => ({id:route.query.id}),
+            component:() => import('../views/manage/question/paper/PaperDetails.vue')
+          },
         ]
       }
     ]
