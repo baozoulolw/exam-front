@@ -8,10 +8,10 @@ import {
 
 const instance = axios.create({
   baseURL:'',
-  timeout:6000,
+  timeout:60000,
 })
 
-//请求拦截器 
+//请求拦截器
 instance.interceptors.request.use((config) => {
   //showLoading()
   if (Cookies.get('token')) config.headers.Authorization = Cookies.get('token')

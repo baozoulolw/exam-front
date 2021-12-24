@@ -6,12 +6,12 @@ import { resolve } from "path";
 export default defineConfig({
   plugins: [vue()],
   server:{
-    port:8181,
+    port:8287,
     host: '0.0.0.0',
     open:false,
     proxy:{
       '/api':{
-        target:'http://localhost:8182',
+        target:'http://localhost:8282',
         changeOrigin:true,
         ws:true,
         rewrite: path => path.replace(/^\/api/, ''),

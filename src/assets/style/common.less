@@ -3,46 +3,80 @@
   height: 9px !important;
   background-color: #409eff;
 }
-:deep(.el-radio__input.is-checked .el-radio__inner){
+
+:deep(.el-radio__input.is-checked .el-radio__inner) {
   background: unset;
 }
 
 // 默认输入框长度
-.wit-3{
+.wit-3 {
   width: 300px;
 }
 
-.search{
-  .margin-r{
+.mb-20{
+  margin-bottom: 20px;
+}
+.mb-12{
+  margin-bottom: 12px;
+}
+.mb-10{
+  margin-bottom: 10px;
+}
+.mr-20{
+  margin-right: 20px;
+}
+.mr-10{
+  margin-right: 10px;
+}
+.mr-12{
+  margin-right: 12px;
+}
+.mr-30{
+  margin-right: 30px;
+}
+
+.search {
+  .margin-r {
     margin-right: 12px;
   }
-  .margin-l{
+
+  .margin-l {
     margin-left: 12px;
   }
 }
 
-:deep(.diaButton){
+:deep(.diaButton) {
   min-width: 75px;
   min-height: 27px;
   font-size: 12px;
-  height:27px ;
+  height: 27px;
   line-height: 0;
 }
 
 // 表格操作列样式
-.table-operate{
+.table-operate {
   display: flex;
   align-items: center;
-  .item-span{
-    color: rgb(64,158,255);
+
+  .item-span {
+    color: rgb(64, 158, 255);
     cursor: pointer;
   }
 }
-.table-span{
+
+.table-span {
   text-align: center;
 }
 
 // 弹窗load样式
-:deep(.el-loading-mask){
-  position: fixed;
+//:deep(.el-loading-mask) {
+//  position: fixed;
+//}
+
+:deep(input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active) {
+  -webkit-transition-delay: 111111s;
+  -webkit-transition: color 11111s ease-out, background-color 111111s ease-out;
 }
