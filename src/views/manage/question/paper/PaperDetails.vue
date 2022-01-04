@@ -27,9 +27,9 @@
       <div class="info-title">
         <div class="name">试题信息</div>
         <span class="score">总分:</span>
-        <el-tag class="mr-20" effect="plain" type="danger">{{totalScore}}</el-tag>
+        <el-tag class="mr-20" effect="plain" type="danger">{{ totalScore }}</el-tag>
         <span class="size mr-20">{{ `试题数量: ${data.types.reduce((p, i) => p + i.questions.length, 0)}` }}</span>
-        <el-button :icon="CirclePlus" size="mini" round>添加试题</el-button>
+        <el-button :icon="CirclePlus" size="mini" round @click="addQuestion">编辑</el-button>
       </div>
       <div class="body-question">
         <section v-for="item in data.types" :key="item.value" class="item">
@@ -92,40 +92,65 @@
         </div>
         <div v-if="data.questionInfo.question.type === 1">
           <section v-for="item in data.options" :key="item.option" class="mb-10">
-            <el-tag :type="JSON.parse(data.questionInfo.question.answer).some(v => item.option === v) ? 'success':'danger'" size="small"
-                    class="mr-20">{{ item.option }}
+            <el-tag
+                :type="JSON.parse(data.questionInfo.question.answer).some(v => item.option === v) ? 'success':'danger'"
+                size="small"
+                class="mr-20">{{ item.option }}
             </el-tag>
             <span>{{ item.value }}</span>
           </section>
           <div style="display: flex;align-items: center;justify-content: flex-end;padding-right: 40px">答案：
 
-            <el-tag style="margin-right: 10px" size="small" type="success" v-for="item in JSON.parse(data.questionInfo.question.answer)" :key="item">
-              {{item}}
+            <el-tag style="margin-right: 10px" size="small" type="success"
+                    v-for="item in JSON.parse(data.questionInfo.question.answer)" :key="item">
+              {{ item }}
             </el-tag>
           </div>
         </div>
         <div v-if="data.questionInfo.question.type === 2">
-          <div class="mb-10"><el-tag class="mr-20" size="small">1</el-tag>  <span class="status correct"></span></div>
-          <div class="mb-20"><el-tag class="mr-20" size="small">2</el-tag>  <span class="status incorrect"></span></div>
+          <div class="mb-10">
+            <el-tag class="mr-20" size="small">1</el-tag>
+            <span class="status correct"></span></div>
+          <div class="mb-20">
+            <el-tag class="mr-20" size="small">2</el-tag>
+            <span class="status incorrect"></span></div>
           <div style="display: flex;align-items: center;justify-content: flex-end;padding-right: 40px">答案：
-            <el-tag style="margin-right: 10px" size="small" type="success" v-for="item in JSON.parse(data.questionInfo.question.answer)" :key="item">
-              {{item}}
+            <el-tag style="margin-right: 10px" size="small" type="success"
+                    v-for="item in JSON.parse(data.questionInfo.question.answer)" :key="item">
+              {{ item }}
             </el-tag>
           </div>
         </div>
         <div v-if="data.questionInfo.question.type === 3">
           <section v-for="(item,index) in JSON.parse(data.questionInfo.question.answer)" :key="index">
-            <el-tag size="small" class="mr-20">{{`填空${index+1}`}}</el-tag>
-             答案： {{item.value}}
+            <el-tag size="small" class="mr-20">{{ `填空${index + 1}` }}</el-tag>
+            答案： {{ item.value }}
           </section>
         </div>
       </div>
-<!--            <template #footer>
-                <span class="dialog-footer">
-                  <el-button @click="closeDialog" type="primary" plain>取消</el-button>
-                  <el-button type="primary" @click="submit">确认</el-button>
-                </span>
-            </template>-->
+    </el-dialog>
+    <el-dialog
+        v-model="data.questionVisible"
+        :before-close="closeEditQuestion"
+        title="编辑题目"
+    >
+      <div v-for="item in data.editQuestion" :key="item.value">
+        <draggable v-model="item.questions"
+                   animation="300"
+                   @start="dragStart = true"
+                   @end="dragEnd"
+                   :scroll-sensitivity="150"
+                   :force-fallback="true"
+                   chosenClass="moveHover"
+                   ghostClass="moveHover"
+                   :delay="100">
+          <transition-group>
+            <div v-for="q in item.questions" :key="item.id">
+              {{ q.id }}
+            </div>
+          </transition-group>
+        </draggable>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -140,10 +165,11 @@ import woman from '../../../../assets/img/woman.svg'
 import time from '../../../../assets/img/time.svg'
 import hard from '../../../../assets/img/hard.svg'
 import {
-  ArrowDownBold,CirclePlus
+  ArrowDownBold, CirclePlus
 } from '@element-plus/icons'
 import Empty from "../../../../components/common/empty/Empty.vue";
-import QuestionDetail from "./QuestionDetail.vue";
+import draggable from 'vuedraggable'
+import VueDragResize from "vue-drag-resize";
 
 const router = useRouter(); //路由
 
@@ -159,6 +185,8 @@ const props = defineProps({
 const emit = defineEmits([])
 
 const data = reactive({
+  editQuestions: {},
+  questionVisible: false,
   isLoad: false,
   paper: {
     changeUserInfo: '',
@@ -226,7 +254,13 @@ const closeDialog = () => {
 const submit = () => {
   data.questionShow = false;
 }
-
+const addQuestion = () => {
+  data.editQuestion = JSON.parse(JSON.stringify(data.types));
+  data.questionVisible = true;
+}
+const closeEditQuestion = () => {
+  data.questionVisible = false;
+}
 const getType = type => {
   let res = '';
   data.types.some(item => {
@@ -308,6 +342,7 @@ onMounted(() => {
     content: '\2714';
     color: #008100;
   }
+
   .incorrect:before {
     content: '\2716';
     color: #b20610;
