@@ -7,7 +7,7 @@
         </el-form-item>
         <el-form-item label="难度">
           <el-radio-group v-model="data.params.hard">
-            <el-radio v-for="item in data.qHards" :label="item.value">{{ item.label }}</el-radio>
+            <el-radio v-for="item in data.qHards" :key="item.value" :label="item.value">{{ item.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注">

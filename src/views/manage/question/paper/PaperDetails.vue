@@ -145,7 +145,7 @@
                    ghostClass="moveHover"
                    :delay="100">
           <transition-group>
-            <div v-for="q in item.questions" :key="item.id">
+            <div v-for="q in item.questions" :key="q.id">
               {{ q.id }}
             </div>
           </transition-group>
@@ -250,7 +250,9 @@ const questionDetail = row => {
 const closeDialog = () => {
   data.questionShow = false;
 }
-
+const dragEnd = () => {
+  
+}
 const submit = () => {
   data.questionShow = false;
 }
