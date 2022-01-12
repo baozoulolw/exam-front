@@ -129,29 +129,9 @@
         </div>
       </div>
     </el-dialog>
-    <el-dialog
-        v-model="data.questionVisible"
-        :before-close="closeEditQuestion"
-        title="编辑题目"
-    >
-      <div v-for="item in data.editQuestion" :key="item.value">
-        <draggable v-model="item.questions"
-                   animation="300"
-                   @start="dragStart = true"
-                   @end="dragEnd"
-                   :scroll-sensitivity="150"
-                   :force-fallback="true"
-                   chosenClass="moveHover"
-                   ghostClass="moveHover"
-                   :delay="100">
-          <transition-group>
-            <div v-for="q in item.questions" :key="q.id">
-              {{ q.id }}
-            </div>
-          </transition-group>
-        </draggable>
-      </div>
-    </el-dialog>
+    <t-dialog header="编辑试题详情" v-model:visible="data.questionVisible" width="600px" v-if="data.questionVisible">
+      <drag-paper :question="data.editQuestion"></drag-paper>
+    </t-dialog>
   </div>
 </template>
 
@@ -160,17 +140,15 @@ import {reactive, onMounted, watch, computed} from 'vue'
 import {useRouter} from "vue-router";
 import {get} from "../../../../http/request";
 import {ElMessage} from "element-plus";
-import man from '../../../../assets/img/man.svg'
-import woman from '../../../../assets/img/woman.svg'
-import time from '../../../../assets/img/time.svg'
-import hard from '../../../../assets/img/hard.svg'
+import man from '../../../../assets/img/man.svg';
+import woman from '../../../../assets/img/woman.svg';
+import time from '../../../../assets/img/time.svg';
+import hard from '../../../../assets/img/hard.svg';
 import {
   ArrowDownBold, CirclePlus
-} from '@element-plus/icons'
+} from '@element-plus/icons';
 import Empty from "../../../../components/common/empty/Empty.vue";
-import draggable from 'vuedraggable'
-import VueDragResize from "vue-drag-resize";
-
+import DragPaper from "./DragPaper.vue";
 const router = useRouter(); //路由
 
 watch(
@@ -185,7 +163,7 @@ const props = defineProps({
 const emit = defineEmits([])
 
 const data = reactive({
-  editQuestions: {},
+  editQuestion: {},
   questionVisible: false,
   isLoad: false,
   paper: {
@@ -251,7 +229,7 @@ const closeDialog = () => {
   data.questionShow = false;
 }
 const dragEnd = () => {
-  
+
 }
 const submit = () => {
   data.questionShow = false;

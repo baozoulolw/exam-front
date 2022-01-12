@@ -25,7 +25,7 @@
     </div>
     <el-scrollbar v-loading="data.paperLoad" :view-class="['papers',{'em':data.papers.length === 0}]"
                   wrap-class="paper-warp">
-      <section v-for="item in data.papers" :key="item.id" class="item" @dblclick="toPaper(item)">
+      <section v-for="item in data.papers" :key="item.id" class="item" @click="toPaper(item)">
         <div class="menu">
           <el-dropdown>
             <el-button type="text">
