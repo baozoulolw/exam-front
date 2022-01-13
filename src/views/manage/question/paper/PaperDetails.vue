@@ -130,7 +130,7 @@
       </div>
     </el-dialog>
     <t-dialog header="编辑试题详情" v-model:visible="data.questionVisible" width="600px" v-if="data.questionVisible">
-      <drag-paper :question="data.editQuestion"></drag-paper>
+      <drag-paper :question="data.editQuestion" :paperId="props.id"></drag-paper>
     </t-dialog>
   </div>
 </template>
