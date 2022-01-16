@@ -29,36 +29,50 @@
         <span class="score">总分:</span>
         <el-tag class="mr-20" effect="plain" type="danger">{{ totalScore }}</el-tag>
         <span class="size mr-20">{{ `试题数量: ${data.types.reduce((p, i) => p + i.questions.length, 0)}` }}</span>
-        <el-button :icon="CirclePlus" size="mini" round @click="addQuestion">编辑</el-button>
+        <t-button variant="outline" @click="addQuestion">
+          <template #icon>
+            <add-icon></add-icon>
+          </template>
+          添加试题
+        </t-button>
       </div>
       <div class="body-question">
         <section v-for="item in data.types" :key="item.value" class="item">
-          <div class="type">
-            <el-icon :class="['down',{'trans':item.trans}]" @click="()=> item.trans = !item.trans">
+          <div class="type" @click="()=> item.trans = !item.trans">
+            <el-icon :class="['down',{'trans':item.trans}]">
               <ArrowDownBold/>
             </el-icon>
             <span style="margin-right: 40px">{{ item.label }}</span>
             <span style="margin-right: 40px">{{ `题目数: ${item.questions.length}` }}</span>
-            <span>{{ `分值: ${item.questions.reduce((p, i) => p + i.score, 0)}` }}</span>
+            <span style="margin-right: auto">{{ `分值: ${item.questions.reduce((p, i) => p + i.score, 0)}` }}</span>
+            <t-button theme="primary" variant="outline" @click.stop="dragQuestion(item)">
+              <template #icon>
+                <swap-icon/>
+              </template>
+              编辑顺序
+            </t-button>
           </div>
           <el-collapse-transition>
             <div v-show='!item.trans' style="padding: 0 30px">
-              <el-table v-show="item.questions.length > 0" :data="item.questions" stripe style="width: 100%">
-                <el-table-column prop="index" label="题号" width="100"/>
-                <el-table-column prop="question.topic" label="题目"/>
-                <el-table-column prop="question.hard" label="难度" width="150">
+              <el-table v-show="item.questions.length > 0" :data="item.questions" style="width: 100%"
+                        :cell-style="{height:'36px'}">
+                <el-table-column type="index" label="题号" width="100"/>
+                <el-table-column prop="question.topic" label="题目" show-overflow-tooltip/>
+                <el-table-column prop="question.hard" label="难度" width="100">
                   <template #default="scope">
                     <span>{{ scope.row.question.hard === 0 ? '简单' : data.paper.hard === 1 ? '中等' : '困难' }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column prop="score" label="分值" width="150">
+                <el-table-column prop="score" label="分值" width="100">
                   <template #default="scope">
                     <el-tag type="success">{{ scope.row.score }}</el-tag>
                   </template>
                 </el-table-column>
-                <el-table-column label="操作" width="120">
+                <el-table-column label="操作" width="150">
                   <template #default="scope">
                     <el-button type="text" @click="questionDetail(scope.row)">预览</el-button>
+                    <t-divider theme="vertical"/>
+                    <el-button type="text" @click="openScore(scope.row)">调整分值</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -76,7 +90,7 @@
         <el-tag type="warning">{{ data.questionInfo.score }}</el-tag>
       </div>
       <div class="mb-20">
-        <span>{{ `${data.questionInfo.index}.${data.questionInfo.question.topic}` }}</span>
+        <span>{{ `${data.questionInfo.sort}.${data.questionInfo.question.topic}` }}</span>
       </div>
       <div style="padding-bottom: 20px">
         <div v-if="data.questionInfo.question.type === 0">
@@ -129,17 +143,25 @@
         </div>
       </div>
     </el-dialog>
-    <t-dialog header="编辑试题详情" v-model:visible="data.questionVisible" width="600px" v-if="data.questionVisible">
-      <drag-paper :question="data.editQuestion" :paperId="props.id"></drag-paper>
+    <t-dialog v-model:visible="data.addShow" header="添加试题" width="1000px" v-if="data.addShow"
+              :on-confirm="onConfirmDia" :on-close="closeDia"
+              :confirm-btn="{content: '保存',theme: 'primary',loading: data.diaLoad,}">
+      <paper-question :paperId="props.id" v-model:selectId="data.selectedRowKeys"></paper-question>
     </t-dialog>
+
+    <t-drawer v-model:visible="data.dragShow" header="编辑顺序" size="700px" v-if="data.dragShow"
+              :on-confirm="onConfirmDragDia" :on-close="closeDragDia"
+              :confirm-btn="{content: '保存',theme: 'primary',loading: data.diaLoad,}">
+      <drag-paper :paperId="props.id" v-model:question="data.editQuestion" v-model:delIds="data.delIds"></drag-paper>
+    </t-drawer>
   </div>
 </template>
 
 <script setup>
-import {reactive, onMounted, watch, computed} from 'vue'
+import {reactive, onMounted, watch, computed, h} from 'vue'
 import {useRouter} from "vue-router";
-import {get} from "../../../../http/request";
-import {ElMessage} from "element-plus";
+import {get, post} from "../../../../http/request";
+import {ElMessage, ElMessageBox} from "element-plus";
 import man from '../../../../assets/img/man.svg';
 import woman from '../../../../assets/img/woman.svg';
 import time from '../../../../assets/img/time.svg';
@@ -148,7 +170,10 @@ import {
   ArrowDownBold, CirclePlus
 } from '@element-plus/icons';
 import Empty from "../../../../components/common/empty/Empty.vue";
+import {SwapIcon, AddIcon} from 'tdesign-icons-vue-next';
+import PaperQuestion from "./PaperQuestion.vue";
 import DragPaper from "./DragPaper.vue";
+
 const router = useRouter(); //路由
 
 watch(
@@ -164,14 +189,19 @@ const emit = defineEmits([])
 
 const data = reactive({
   editQuestion: {},
+  addShow: false,
+  dragShow: false,
+  selectedRowKeys: [],
   questionVisible: false,
   isLoad: false,
+  diaLoad: false,
   paper: {
     changeUserInfo: '',
     drawerUserInfo: '',
     content: ''
   },
   questions: [],
+  delIds: [],
   types: [
     {value: 0, label: '单选题', questions: [], trans: true},
     {value: 1, label: '多选题', questions: [], trans: true},
@@ -199,12 +229,38 @@ const getPaperById = async (id) => {
           data.totalScore += item.score;
           return true;
         }
-      }).sort((v1, v2) => v1.index - v2.index);
+      }).sort((v1, v2) => v1.sort - v2.sort);
     });
   } else {
     ElMessage.error(res.desc);
   }
   data.isLoad = false;
+}
+
+const onConfirmDia = async () => {
+  if (data.selectedRowKeys.length > 0) {
+    data.diaLoad = true;
+    let param = data.selectedRowKeys.reduce((pre, item) => {
+      let obj = {
+        questionId: item,
+        paperId: props.id,
+        sort: 0,
+        score: 0
+      }
+      pre.push(obj)
+      return pre
+    }, [])
+    let res = await post('/paper/addQue', param);
+    data.diaLoad = false;
+    if (res.status === 1000) {
+      closeDia();
+      await getPaperById(props.id)
+    } else {
+      ElMessage.error(res.desc);
+    }
+  } else {
+    closeDia();
+  }
 }
 
 /**
@@ -225,21 +281,57 @@ const questionDetail = row => {
   data.questionShow = true;
 }
 
-const closeDialog = () => {
-  data.questionShow = false;
+const closeDia = () => {
+  data.addShow = false;
 }
-const dragEnd = () => {
 
-}
-const submit = () => {
-  data.questionShow = false;
-}
 const addQuestion = () => {
-  data.editQuestion = JSON.parse(JSON.stringify(data.types));
-  data.questionVisible = true;
+  data.addShow = true;
 }
-const closeEditQuestion = () => {
-  data.questionVisible = false;
+
+const openScore = (row) => {
+  console.log(row)
+  ElMessageBox.prompt('输入新的分值', '调整分值', {
+    confirmButtonText: '确认',
+    cancelButtonText: '取消',
+    inputPattern: /(^[1-9]{1}[0-9]*$)/,
+    inputErrorMessage: '请输入大于0的数字',
+  })
+      .then(async ({value}) => {
+        let res = await post('/paper/score', {id: row.id, score: value});
+        if (res.status === 1000) {
+          ElMessage.success('修改成功');
+          await getPaperById(props.id);
+        } else {
+          ElMessage.error(res.desc);
+        }
+      })
+}
+
+const onConfirmDragDia = async () => {
+  data.diaLoad = true;
+  let delIds = data.delIds;
+  let sorts = data.editQuestion.questions.reduce((p, i, index) => {
+    p.push({id: i.id, sort: index})
+    return p;
+  }, []);
+  let res = await post('/paper/sort', {delIds, sorts});
+  data.diaLoad = false;
+  if (res.status === 1000) {
+    closeDragDia();
+    await getPaperById(props.id)
+  } else {
+    ElMessage.error(res.desc);
+  }
+}
+
+const closeDragDia = () => {
+  data.dragShow = false;
+}
+const dragQuestion = item => {
+  data.editQuestion = JSON.parse(JSON.stringify(item));
+  data.delIds = [];
+  data.dragShow = true
 }
 const getType = type => {
   let res = '';
@@ -303,6 +395,8 @@ onMounted(() => {
       .item {
         .type {
           padding: 10px 30px;
+          display: flex;
+          align-items: center;
 
           .down {
             margin-right: 20px;
@@ -313,6 +407,9 @@ onMounted(() => {
           .trans {
             transform: rotate(-90deg);
           }
+        }
+        .type:hover{
+          background: #ecf0f1;
         }
       }
     }

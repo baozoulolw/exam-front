@@ -125,6 +125,7 @@ const rehandleSelectChange = (value, {selectedRowData}) => {
 
 onMounted(() => {
   data.selectedRowKeys = props.selectId;
+  toSearch();
 })
 </script>
 

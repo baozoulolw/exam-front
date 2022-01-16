@@ -1,153 +1,149 @@
 <template>
   <div>
-    <t-button variant="outline" theme="primary" @click="addQuestion"> 添加试题</t-button>
-    <div v-for="item in data.types" :key="item.value" style="margin-bottom: 20px">
-      <div>{{ item.label }}</div>
-      <VueSortableJs v-model:list="item.questions" :options="data.sortableOptions">
-        <template #item="{ element, index }">
-          <div class="list-item">{{ element.question.topic }} {{ index }}</div>
-        </template>
-      </VueSortableJs>
+    <!--    <VueSortableJs v-model:list="data.question.questions" :options="data.sortableOptions">
+          <template #item="{ element, index }">
+            <div class="list-item">
+              <span>
+              {{ element.question.topic }}</span>
+              <div class="operate">
+                <el-button type="text">升序</el-button>
+                <t-divider theme="vertical" />
+                <el-button type="text">降序</el-button>
+                <t-divider theme="vertical" />
+                <el-button type="text">删除</el-button>
+              </div>
+            </div>
+          </template>
+        </VueSortableJs>-->
+    <div class="head">
+      <el-icon :size="16" style="margin-right: 8px">
+        <Warning/>
+      </el-icon>
+      拖动调整顺序
     </div>
-    <t-dialog v-model:visible="data.addShow" header="添加试题" width="700px" attach="body"
-              :on-confirm="onConfirmDia" :destroyOnClose="true">
-      <div class="search-q">
-        <t-input class="mr-12" v-model="data.searchParam.param.keyword" clearable placeholder="请输入关键词"/>
-        <t-select class="mr-12" v-model="data.searchParam.param.type" placeholder="请选择题型" clearable>
-          <t-option v-for="item in data.qTypes" :key="item.value" :label="item.label" :value="item.value"></t-option>
-        </t-select>
-        <t-select class="mr-12" v-model="data.searchParam.param.hard" :options="data.qHards" placeholder="请选择难度"
-                  clearable/>
-        <t-button variant="outline" theme="primary" @click="toSearch" :loading="data.tableLoad"> 搜索</t-button>
-      </div>
-      <t-table
-          :loading="data.tableLoad"
-          row-key="id"
-          :data="data.tableData"
-          :columns="data.questionColumns"
-          :selected-row-keys="data.selectedRowKeys"
-          @select-change="rehandleSelectChange"
-      >
-        <template #type="{ row }">
-          <span>{{ data.qShowTypes[row.type] }}</span>
-        </template>
-        <template #hard="{ row }">
-          <span>{{ data.hards[row.hard] }}</span>
-        </template>
-      </t-table>
-      <div class="page">
-        <t-pagination
-            v-model="data.searchParam.pageNumber"
-            v-model:pageSize="data.searchParam.pageSize"
-            :total="data.total"
-            size="small"
-            theme="simple"
-            :pageSizeOptions="[]"
-            @pageSizeChange="onPageSizeChange"
-            @currentChange="onCurrentChange"
-        />
-      </div>
-    </t-dialog>
+    <div v-if="data.question.questions.length > 0">
+    <draggable v-model="data.question.questions" item-key="id" :animation="250" ghost-class="dragging"
+               @start="startDrag" @end="endDrag">
+      <template #item="{ element,index }">
+        <div
+            :class="['list-item',{'hover':!data.dragging&&data.hoverId===element.id},{'dragItem':element.id===data.dragId}]"
+            @mouseover="mouserHover(element.id)"
+            @mouseleave="mouseLeave" :id="element.id">
+          <span>
+          {{ element.question.topic }}</span>
+          <div class="operate">
+            <el-button type="text" @click="changeSort(element,index,1)" v-show="index !== 0">升序</el-button>
+            <t-divider theme="vertical" v-show="index !== 0"/>
+            <el-button type="text" @click="changeSort(element,index,-1)"
+                       v-show="index+1 !== data.question.questions.length">降序
+            </el-button>
+            <t-divider theme="vertical" v-show="index+1 !== data.question.questions.length"/>
+            <el-button type="text" @click="changeSort(element,index,0)">删除</el-button>
+          </div>
+        </div>
+      </template>
+    </draggable>
+    </div>
+    <empty v-else></empty>
   </div>
 </template>
 <script setup>
-import {reactive, onMounted} from 'vue'
+import {reactive, onMounted, watch} from 'vue'
+import {get, post} from "../../../../http/request";
+import {ElMessage} from "element-plus";
+import {ArrowUpIcon, ArrowDownIcon, DeleteIcon} from 'tdesign-icons-vue-next';
+import {Warning} from '@element-plus/icons';
 import VueSortableJs from "@/components/common/sort/vue-sortable-js.vue";
-import {post} from "../../../../http/request";
+import draggable from 'vuedraggable'
+import Empty from "@/components/common/empty/Empty.vue";
 
 const props = defineProps({
-  question: Array,
-  paperId: String
+  question: Object,
+  paperId: String,
+  delIds: Array
 })
+const emits = defineEmits(['update:question', 'update:delIds'])
 const data = reactive({
-  tableLoad:false,
-  addShow: false,
-  types: [],
-  total: 0,
-  tableData: [],
-  sortableOptions: {animation: 150},
-  searchParam: {
-    pageNumber: 1,
-    pageSize: 5,
-    param: {
-      keyword: '',
-      type: '',
-      hard: '',
-      selectPaperId: props.paperId
-    }
+  question: {
+    questions:[]
   },
-  selectedRowKeys: [],
-  qShowTypes: ['单选题', '多选题', '判断题', '填空题'],
-  hards: ['简单', '中等', '困难'],
-  qTypes: [
-    {value: 0, label: '单选题'},
-    {value: 1, label: '多选题'},
-    {value: 2, label: '判断题'},
-    {value: 3, label: '填空题'},
-  ],
-  qHards: [
-    {value: 0, label: '简单'},
-    {value: 1, label: '中等'},
-    {value: 2, label: '困难'},
-  ],
-  questionColumns: [
-    {colKey: 'row-select', type: 'multiple', width: 50},
-    {colKey: 'topic', title: '题目'},
-    {colKey: 'type', title: '题型', cell: 'type'},
-    {colKey: 'hard', title: '难度', cell: 'hard'}
-  ]
+  dragging: false,
+  hoverId: '',
+  dragId: '',
+  delIds: []
 })
 
-const getQuestions = async () => {
-  data.tableLoad = true;
-  let res = await post('/question/page', data.searchParam);
-  if (res.status === 1000) {
-    data.tableData = res.data.list;
-    data.total = Number(res.data.totalCount);
+watch(() => data.question.questions,
+    () => emits('update:question', data.question))
+
+const changeSort = (element, index, sort,scope) => {
+  console.log(scope)
+  if (sort === 1) {
+    data.question.questions.splice(index - 1, 0, element);
+    data.question.questions.splice(index + 1, 1);
+  } else if (sort === 0) {
+    data.delIds.push(element.id);
+    emits('update:delIds', data.delIds)
+    data.question.questions.splice(index, 1);
   } else {
-    ElMessage.error(res.desc);
+    data.question.questions.splice(index + 2, 0, element);
+    data.question.questions.splice(index, 1);
   }
-  data.tableLoad = false;
-}
-const addQuestion = () => {
-  data.addShow = true
-}
-const toSearch = () => {
-  data.searchParam.pageNumber = 1;
-  getQuestions();
-
+  console.log(element, index, sort)
 }
 
-const onPageSizeChange = val => {
-  data.searchParam.pageNumber = 1;
-  data.searchParam.pageSize = val;
-  getQuestions();
+const startDrag = (e) => {
+  data.dragId = e.clone.id;
+  data.dragging = true;
 }
 
-const onCurrentChange = val => {
-  data.searchParam.pageNumber = val;
-  getQuestions();
+const endDrag = (e) => {
+  data.dragId = '';
+  data.hoverId = e.clone.id;
+  data.dragging = false;
 }
 
-const onConfirmDia = () => {
-  if (data.selectedRowKeys.length > 0) {
-    console.log(data.selectedRowKeys)
-  }
-}
-const rehandleSelectChange = (value, {selectedRowData}) => {
-  data.selectedRowKeys = value;
+const mouserHover = id => {
+  data.hoverId = id;
 }
 
+const mouseLeave = () => {
+  data.hoverId = ''
+}
 onMounted(() => {
-  data.types = JSON.parse(JSON.stringify(props.question))
+  data.question = JSON.parse(JSON.stringify(props.question))
 })
 </script>
 <style scoped lang='less'>
-.search-q {
-  padding-right: 100px;
+.head {
+  width: 100%;
+  height: 40px;
   display: flex;
+  align-items: center;
+  padding-left: 10px;
 }
-.page{
-  margin-top:20px
+
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  height: 45px;
+  border: 1px solid #DCDEE2;
+  border-radius: 4px;
+  margin-bottom: 10px;
+
+  span {
+    margin-right: auto;
+  }
+
+  .operate {
+
+  }
+}
+
+.hover, .dragItem, .dragging {
+  background: #D3CCE3; /* fallback for old browsers */
+  background: -webkit-linear-gradient(to bottom, #E9E4F0, #D3CCE3); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to bottom, #E9E4F0, #D3CCE3);
 }
 </style>
