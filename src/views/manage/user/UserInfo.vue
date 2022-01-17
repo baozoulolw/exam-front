@@ -6,14 +6,22 @@
         <t-steps v-model="data.current" :options="data.steps" readonly/>
       </div>
       <div class="body">
-        <div v-show="data.current === 1">
-          <el-form ref="base-form" :model="user" :rules="data.rules">
-            <el-form-item>
-              <el-input v-model="user.realName"></el-input>
-            </el-form-item>
-            <el-form-item>
-
-            </el-form-item>
+        <div v-show="data.current === 1" class="baseInfo">
+          <el-form ref="base-form" :model="user" :rules="data.rules" label-width="100px">
+            <div class="form-body">
+              <div class="left">
+                <el-form-item>
+                  <avatar-upload></avatar-upload>
+                </el-form-item>
+              </div>
+              <div class="right">
+                <el-form-item label="学生姓名" prop="realName">
+                  <el-input v-model="user.realName"></el-input>
+                </el-form-item>
+                <el-form-item label="性别" prop="gender">
+                </el-form-item>
+              </div>
+            </div>
           </el-form>
         </div>
         <div v-show="data.current === 2">
@@ -38,6 +46,8 @@
 
 <script setup>
 import {reactive, onMounted, watch} from 'vue'
+import AvatarUpload from "../../../components/common/upload/AvatarUpload.vue";
+import {Plus} from '@element-plus/icons'
 
 const props = defineProps({
   visible: Boolean
@@ -60,7 +70,8 @@ const data = reactive({
   rules: {
     realName: [],
     avatar: [],
-  }
+  },
+  imageUrl: ''
 })
 
 const user = reactive({
@@ -93,4 +104,10 @@ onMounted(() => {
 </script>
 
 <style scoped lang='less'>
+.baseInfo {
+  padding: 30px 150px 0 150px;
+  .form-body{
+    display:flex;
+  }
+}
 </style>
