@@ -19,14 +19,7 @@
               >{{ (data.params.pageNumber - 1) * data.params.pageSize + scope.$index + 1 }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="题目" prop="topic">
-        <template #default="scope">
-              <span
-                  class="table-span"
-                  :title="scope.row.topic"
-              >{{ scope.row.topic }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column label="题目" prop="topic" show-overflow-tooltip/>
       <el-table-column label="题型" width="100">
         <template #default="scope">
               <span
@@ -56,7 +49,7 @@
           <div class="table-operate">
             <el-button type="text" @click="edit(scope.row)">编辑</el-button>
             <el-divider direction="vertical"></el-divider>
-            <el-button type="text">删除</el-button>
+            <el-button type="text" @click='delQuestion(scope.row)'>删除</el-button>
           </div>
         </template>
       </el-table-column>
@@ -77,8 +70,9 @@
 
 <script setup>
 import {reactive, onMounted, watch} from 'vue'
-import {post} from '../../../../http/request';
+import {get, post} from '../../../../http/request';
 import {onBeforeRouteUpdate, useRouter} from "vue-router";
+import {ElMessageBox,ElMessage} from "element-plus";
 
 const router = useRouter(); //路由
 
@@ -151,6 +145,26 @@ const addQuestion = () => {
   const path = '/question_edit'
   router.push({path, query: {editType: 'add'}})
 }
+const delQuestion = row =>{
+  ElMessageBox.confirm(
+      '删除后不可恢复，确认删除此题?',
+      '提示',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+  )
+      .then(async() => {
+        let res = await get(`/question/delById/${row.id}`);
+        if(res.status === 1000){
+          ElMessage.success('删除成功')
+          await getQuestionList();
+        }else{
+          ElMessage.error(res.desc);
+        }
+      })
+}
 
 const edit = row => {
   data.editQuestion = JSON.parse(JSON.stringify(row));
@@ -165,8 +179,9 @@ onMounted(() => {
 <style scoped lang='less'>
 .main {
   background: white;
-  height: calc(100vh - 140px);
+  height: calc(100vh - 100px);
   padding: 20px;
+  position: relative;
 
   .search {
     display: flex;
@@ -174,8 +189,9 @@ onMounted(() => {
   }
 
   .pagination {
-    margin-top: 20px;
-    text-align: right;
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
   }
 }
 </style>

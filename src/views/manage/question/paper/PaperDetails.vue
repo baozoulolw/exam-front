@@ -45,11 +45,17 @@
             <span style="margin-right: 40px">{{ item.label }}</span>
             <span style="margin-right: 40px">{{ `题目数: ${item.questions.length}` }}</span>
             <span style="margin-right: auto">{{ `分值: ${item.questions.reduce((p, i) => p + i.score, 0)}` }}</span>
-            <t-button theme="primary" variant="outline" @click.stop="dragQuestion(item)">
+            <t-button theme="primary" variant="outline" @click.stop="dragQuestion(item)" style="margin-right: 12px">
               <template #icon>
                 <swap-icon/>
               </template>
               编辑顺序
+            </t-button>
+            <t-button theme="primary" variant="outline" @click.stop="clean(item)">
+              <template #icon>
+                <delete-icon/>
+              </template>
+              清空
             </t-button>
           </div>
           <el-collapse-transition>
@@ -170,7 +176,7 @@ import {
   ArrowDownBold, CirclePlus
 } from '@element-plus/icons';
 import Empty from "../../../../components/common/empty/Empty.vue";
-import {SwapIcon, AddIcon} from 'tdesign-icons-vue-next';
+import {SwapIcon, AddIcon,DeleteIcon} from 'tdesign-icons-vue-next';
 import PaperQuestion from "./PaperQuestion.vue";
 import DragPaper from "./DragPaper.vue";
 
@@ -280,7 +286,35 @@ const questionDetail = row => {
   }
   data.questionShow = true;
 }
-
+const clean = item =>{
+  if(item.questions.length === 0){
+    ElMessage.warning('当前题型题组暂无题目！')
+    return;
+  }
+  ElMessageBox.confirm(
+      '清空后不可恢复，是否清空?',
+      '提示',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+  )
+      .then(async() => {
+        let delIds = item.questions.reduce((p,i) => {
+          p.push(i.id);
+          return p;
+        },[])
+        let res = await post('/paper/sort', {delIds, sorts:[]});
+        data.diaLoad = false;
+        if (res.status === 1000) {
+          ElMessage.success('清空成功')
+          await getPaperById(props.id)
+        } else {
+          ElMessage.error(res.desc);
+        }
+      })
+}
 const closeDia = () => {
   data.addShow = false;
 }

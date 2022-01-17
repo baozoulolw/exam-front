@@ -4,11 +4,13 @@
       <el-input v-model="data.keyword" placeholder="输入关键字" class="margin-r wit-3"></el-input>
       <el-button @click="addResource">添加根资源</el-button>
     </div>
-    <div>
-      <div>
+    <div class="body">
+      <div class="left">
         <el-tree :data="data.treeData" :props="defaultProps" @node-click="handleNodeClick" />
       </div>
-      <div></div>
+      <div class="right">
+
+      </div>
     </div>
   </div>
 </template>
@@ -90,6 +92,23 @@ onMounted(() => {
   .search {
     display: flex;
     margin-bottom: 30px;
+  }
+  .body{
+    display: flex;
+    padding: 100px 200px;
+    height: 100%;
+    .left{
+      flex:1;
+      border:1px solid var(--el-border-color-base);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+      margin-right: 20px;
+      padding: 12px;
+    }
+    .right{
+      flex: 1;
+      border:1px solid var(--el-border-color-base);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+    }
   }
 }
 </style>

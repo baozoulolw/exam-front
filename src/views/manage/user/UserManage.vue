@@ -43,6 +43,7 @@
         :total="data.total"
       ></el-pagination>
     </div>
+    <user-info v-model:visible="data.visible"></user-info>
   </div>
 </template>
 
@@ -50,6 +51,7 @@
 import { ElMessage, ElSelect } from 'element-plus';
 import { reactive, onMounted } from 'vue'
 import { post } from '../../../http/request'
+import UserInfo from "./UserInfo.vue";
 const data = reactive({
   params: {
     pageNumber: 1,
@@ -64,9 +66,8 @@ const data = reactive({
   tableData: [],
   visible: false,
   editFormData: {},
-  type: 'add',
   searchLoad: false,
-  tableLoad: false
+  tableLoad: false,
 })
 const getUserList = async () => {
   data.tableLoad = true;
@@ -79,7 +80,6 @@ const getUserList = async () => {
   }
   data.tableLoad = false;
 }
-
 const toSearch = () => {
   data.params.pageNumber = 1;
   data.searchLoad = true;
@@ -97,7 +97,6 @@ const handleSizeChange = val => {
 }
 
 const addUser = () => {
-  data.type = 'add';
   data.visible = true;
 }
 

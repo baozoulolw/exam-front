@@ -3,7 +3,7 @@ import persistedState from 'vuex-persistedstate' //首先引入
 
 const store = createStore({
   state:() =>({
-    userInfo:{}
+    userInfo:{},
   }),
   mutations:{
     userInfo:(state,value) => {
@@ -15,7 +15,7 @@ const store = createStore({
       ctx.commit('userInfo',value);
     }
   },
-  plugins: [persistedState ()] 
+  plugins: [persistedState ()]
 })
 
 export default store
