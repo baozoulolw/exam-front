@@ -13,7 +13,7 @@
     </div>
     <el-popover placement="bottom-end" :width="200" trigger="hover" popper-class='head-pop'>
       <template #reference>
-        <el-avatar :size="45" :src="avatar" class="avatar"></el-avatar>
+        <el-avatar :size="45" :src="userInfo.avatarUrl" class="avatar"></el-avatar>
       </template>
       <div>
         <el-button type="text" class="item" @click="logout()">退出登录</el-button>

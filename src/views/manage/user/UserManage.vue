@@ -49,7 +49,7 @@
         :total="data.total"
       ></el-pagination>
     </div>
-    <user-info v-model:visible="data.visible"></user-info>
+    <user-info v-model:visible="data.visible" @close="closeDia"></user-info>
   </div>
 </template>
 
@@ -113,6 +113,11 @@ const edit = row => {
   data.type = 'edit';
   data.visible = true;
 }
+
+const closeDia = () => {
+  data.visible = false;
+  toSearch();
+}
 onMounted(() => {
   getUserList();
 })
@@ -120,15 +125,17 @@ onMounted(() => {
 <style scoped lang='less'>
 .main {
   background: white;
-  height: calc(100vh - 140px);
+  height: calc(100vh - 100px);
   padding: 20px;
+  position: relative;
   .search {
     display: flex;
     margin-bottom: 30px;
   }
   .pagination {
-    margin-top: 20px;
-    text-align: right;
+    position: absolute;
+    bottom:20px;
+    right: 20px;
   }
 }
 </style>

@@ -5,6 +5,7 @@
       theme="image"
       accept="image/*, .png , .svg"
       @fail="handleFail"
+      :sizeLimit="{ size: 2, unit: 'MB', message: '图片大小不超过 {sizeLimit} MB' }"
       trigger="点击上传头像"
   ></t-upload>
 </template>
@@ -14,9 +15,11 @@ import {reactive, onMounted} from 'vue'
 import {ElMessage} from "element-plus";
 import {Plus} from '@element-plus/icons'
 
-const props = defineProps({})
+const props = defineProps({
+  file:Object
+})
 
-const emit = defineEmits([])
+const emit = defineEmits(['update:file'])
 
 const data = reactive({
   file: []
@@ -30,21 +33,6 @@ const data = reactive({
 /**
  * 事件
  */
-const handleAvatarSuccess = (res, file) => {
-  data.imageUrl = URL.createObjectURL(file.raw)
-}
-const beforeAvatarUpload = (file) => {
-  const isJPG = file.type === 'image/jpeg'
-  const isLt2M = file.size / 1024 / 1024 < 2
-
-  if (!isJPG) {
-    ElMessage.error('Avatar picture must be JPG format!')
-  }
-  if (!isLt2M) {
-    ElMessage.error('Avatar picture size can not exceed 2MB!')
-  }
-  return isJPG && isLt2M
-}
 
 const handleFail = () => {
 
@@ -53,6 +41,7 @@ const handleFail = () => {
 const saveImg = async (file) => {
   let reader = new FileReader();
   reader.readAsDataURL(file.raw);
+  emit('update:file',file.raw);
   return new Promise(resolve=>{
     reader.onloadend = () => {
       let url = reader.result;
