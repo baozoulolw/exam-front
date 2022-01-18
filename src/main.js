@@ -3,6 +3,7 @@ import App from './App.vue'
 import ElementPlus from 'element-plus'
 import TDesign from 'tdesign-vue-next';
 import 'element-plus/dist/index.css'
+import 'default-passive-events';
 import router from './router'
 import store from './store'
 // 统一导入el-icon图标

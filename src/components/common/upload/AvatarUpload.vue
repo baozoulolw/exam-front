@@ -3,8 +3,9 @@
       v-model="data.file"
       :request-method="saveImg"
       theme="image"
-      accept="image/*"
+      accept="image/*, .png , .svg"
       @fail="handleFail"
+      trigger="点击上传头像"
   ></t-upload>
 </template>
 

@@ -11,14 +11,20 @@
     <el-table-column label="所在班级">
         <template #default="scope">
           <span
-            :span="scope.row.classExam ? scope.row.classExam.className : '--'"
+            :title="scope.row.classExam ? scope.row.classExam.className : '--'"
           >{{ scope.row.classExam ? scope.row.classExam.className : '--' }}</span>
         </template>
       </el-table-column>
       <el-table-column label="姓名" prop="realName" width="200"></el-table-column>
       <el-table-column label="性别" prop="gender"></el-table-column>
       <el-table-column label="手机号" prop="phone"></el-table-column>
-      <el-table-column label="地址" prop="address" width="180"></el-table-column>
+      <el-table-column label="地址" prop="address" width="180">
+        <template #default="scope">
+          <span
+              :title="getAddressStringByCode(JSON.parse(scope.row.address))">
+            {{ getAddressStringByCode(JSON.parse(scope.row.address)) }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="创建时间" prop="createTime" width="180"></el-table-column>
       <el-table-column label="最后修改时间" prop="changeTime" width="180"></el-table-column>
       <el-table-column label="最后操作人" prop="changeUser"></el-table-column>
@@ -52,6 +58,8 @@ import { ElMessage, ElSelect } from 'element-plus';
 import { reactive, onMounted } from 'vue'
 import { post } from '../../../http/request'
 import UserInfo from "./UserInfo.vue";
+import {getAddressStringByCode} from '../../../utils/utils';
+
 const data = reactive({
   params: {
     pageNumber: 1,
