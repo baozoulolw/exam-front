@@ -20,7 +20,6 @@ const app = createApp(App)
   .use(TDesign)
 // 统一注册el-icon图标
 for (let iconName in ElIconModules) {
-  console.log(transElIconName(iconName));
   app.component(transElIconName(iconName), ElIconModules[iconName])
 }
 app.mount('#app')
