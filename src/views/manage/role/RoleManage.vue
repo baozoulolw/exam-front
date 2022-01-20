@@ -28,9 +28,9 @@
       <el-table-column label="操作" width="120">
         <template #default="scope">
           <div class="table-operate">
-            <el-button type="text" @click="edit(scope.row)">编辑</el-button>
+            <span @click="edit(scope.row)" class="item-span">编辑</span>
             <el-divider direction="vertical"></el-divider>
-            <el-button type="text">删除</el-button>
+            <span class="item-span">删除</span>
           </div>
         </template>
       </el-table-column>
