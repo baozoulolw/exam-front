@@ -136,7 +136,7 @@ router.beforeEach((to, from, next) => {
   //document.title = `Admin Frame | ${to.meta.title}`; //添加title
   const user = getToken();//获取token to.path !== '/login'
   //NProgress.start();// 路由跳转前钩子函数中 - 执行进度条开始加载
-  if (!to.matched.length) {
+  if (to.matched.length === 0) {
     next('/404');
   }
   if (user) {

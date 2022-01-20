@@ -16,65 +16,68 @@
         <el-image style="width: 30px; height: 30px;" :src="logo" fit="fill"></el-image>
         <span v-show='!proData.menuCollapse' style="margin-left:10px">Online-Exam</span>
       </div>
-      <el-menu-item index="/homePage">
-        <el-icon>
-          <House />
-        </el-icon>
-        <span>首页</span>
-      </el-menu-item>
-      <el-sub-menu index="2">
-        <template #title>
-          <el-icon>
-            <Reading />
-          </el-icon>
-          <span>题库</span>
+      <template v-for="item in data.treeData">
+        <template v-if="item.children.length > 0">
+          <el-sub-menu  :index="item.id">
+            <template #title>
+              <el-icon>
+                <component :is="item.icon"/>
+              </el-icon>
+              <span>{{item.resourceName}}</span>
+            </template>
+            <el-menu-item  v-for="itemC in item.children" :index="itemC.path" :key="itemC.id">{{itemC.resourceName}}</el-menu-item>
+          </el-sub-menu>
         </template>
-        <el-menu-item index="/questions">题库管理</el-menu-item>
-        <el-menu-item index="/paper">试卷管理</el-menu-item>
-      </el-sub-menu>
-      <el-sub-menu index="3">
-        <template #title>
-          <el-icon>
-            <Trophy />
-          </el-icon>
-          <span>考试</span>
+        <template v-else>
+          <el-menu-item :index="item.path">
+            <el-icon>
+              <component :is="item.icon"/>
+            </el-icon>
+            <span>{{item.resourceName}}</span>
+          </el-menu-item>
         </template>
-        <el-menu-item index="/questions">考试编排</el-menu-item>
-      </el-sub-menu>
-      <el-sub-menu index="4">
-        <template #title>
-          <el-icon>
-            <Setting />
-          </el-icon>
-          <span>设置</span>
-        </template>
-        <el-menu-item index="/user">成员设置</el-menu-item>
-        <el-menu-item index="/role">角色设置</el-menu-item>
-        <el-menu-item index="/resource">资源设置</el-menu-item>
-      </el-sub-menu>
+      </template>
     </el-menu>
   </div>
 </template>
 
 <script setup>
-import { reactive, onMounted, inject } from 'vue'
+import { reactive, onMounted, inject,onBeforeMount } from 'vue'
 import logo from '../../assets/img/logo.svg'
 import {
   Location,
   House,Setting,Reading,Trophy
 } from '@element-plus/icons'
-const data = reactive({})
+import {get} from "../../http/request";
+import {ElMessage} from "element-plus";
+const data = reactive({
+  treeData:[]
+})
 let proData = inject('proData');
 
 const handleOpen = (key, keyPath) => {
-  console.log(key, keyPath)
+  //console.log(key, keyPath)
 }
 const handleClose = (key, keyPath) => {
-  console.log(key, keyPath)
+  //console.log(key, keyPath)
+}
+
+const getAllResource = async () => {
+  let res = await get('/resource/getAll');
+  if (res.status === 1000) {
+    data.treeData = res.data;
+  } else {
+    ElMessage.error(res.desc);
+  }
 }
 
 onMounted(() => {
+  //getAllResource();
 })
+onBeforeMount(() => {
+  getAllResource();
+})
+
 </script>
 <style scoped lang='less'>
 .logo{

@@ -8,7 +8,7 @@
       <div class="left">
         <el-scrollbar>
           <el-tree :data="data.treeData" ref="tree" @node-click="handleNodeClick" :props="data.props"
-                   :filter-node-method="filterNode"/>
+                   :filter-node-method="filterNode" default-expand-all/>
         </el-scrollbar>
       </div>
       <div class="right">
@@ -37,7 +37,7 @@
             <span class="title">请求路径</span>
             <span>{{ data.showResource.path }}</span>
           </div>
-          <div class="item">
+          <div class="item" v-if="data.showResource.isRoot === 1">
             <span class="title">图标</span>
             <el-icon size="30">
               <component :is="data.showResource.icon"/>
@@ -45,8 +45,10 @@
           </div>
           <div class="foot">
             <el-button type="primary" plain size="small" @click="editResource">编辑资源</el-button>
-            <el-button size="small" type="info" plain>删除资源</el-button>
-            <el-button v-if="data.showResource.isRoot === 1" size="small" type="success" plain>新增子资源</el-button>
+            <el-button size="small" type="info" plain @click="delResource">删除资源</el-button>
+            <el-button v-if="data.showResource.isRoot === 1" size="small" type="success" plainx @click="addChildren">
+              新增子资源
+            </el-button>
           </div>
         </div>
       </div>
@@ -63,10 +65,10 @@
                          :value="item.value"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="菜单路径" v-show="data.resource.type === 'menu'" prop="path">
+          <el-form-item label="菜单路径" v-if="data.resource.type === 'menu'" prop="path">
             <el-input v-model="data.resource.path" size="small" placeholder="请输入资源请求路径"></el-input>
           </el-form-item>
-          <el-form-item label="图标" v-show="data.resource.type === 'menu' && data.resource.isRoot" prop="icon">
+          <el-form-item label="图标" v-if="data.resource.type === 'menu' && data.resource.isRoot" prop="icon">
             <el-button size="small" type="primary" @click="selectIcon" style="margin-right: 20px;">
               {{ data.resource.icon ? '重新选择' : '点击选择' }}
             </el-button>
@@ -106,9 +108,9 @@ import {reactive, onMounted, computed, ref, watch} from 'vue'
 // 统一导入el-icon图标
 import * as ElIconModules from '@element-plus/icons'
 // 导入转换图标名称的函数
-import {transElIconName} from '../../../utils/utils'
+import {deepCloneObj, transElIconName} from '../../../utils/utils'
 import {get, post} from "../../../http/request";
-import {ElMessage} from "element-plus";
+import {ElMessage, ElMessageBox} from "element-plus";
 import {getObjByType} from "../../../utils/utils";
 
 
@@ -162,7 +164,9 @@ const addResource = (root) => {
     path: '',
     icon: '',
     type: 'menu',
-    resourceName: ''
+    resourceName: '',
+    parent: '',
+    weights:data.treeData.length+1
   };
   data.resource.isRoot = root;
   data.addShow = true;
@@ -191,12 +195,13 @@ const choseIcon = item => {
   closeIconDia();
 }
 const confirmDia = async () => {
-  console.log(form);
   form.value.validate(async (res) => {
     if (res) {
-      let res = await post('/resource/add', data.resource);
+      let url = data.resource.id ? '/resource/update':'/resource/add'
+      let res = await post(url, data.resource);
       if (res.status === 1000) {
-        ElMessage.success('新增资源成功');
+        ElMessage.success(data.resource.id ? '编辑资源成功':'新增资源成功');
+        data.showResource = deepCloneObj(data.resource);
         closeDia();
         await getAllResource();
       } else {
@@ -218,9 +223,45 @@ const filterNode = (value, data) => {
 const handleNodeClick = item => {
   data.showResource = item;
 }
-
+const delResource = () => {
+  ElMessageBox.confirm(
+      '删除后不可恢复，确认删除？',
+      '提示',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+  ).then(async () => {
+    let res = await get(`/resource/del/${data.showResource.id}`);
+    if (res.status === 1000) {
+      ElMessage.success('删除成功');
+      data.showResource = '';
+      await getAllResource();
+    } else {
+      ElMessage.error(res.desc)
+    }
+  }).catch(() => {
+        ElMessage.info('Delete canceled');
+      })
+}
 const editResource = () => {
+  let {id, isRoot, path, icon, type, resourceName,note} = data.showResource;
+  data.resource = {id, isRoot, path, icon, type, resourceName,note};
+  data.addShow = true;
+}
 
+const addChildren = () => {
+  data.resource = {
+    isRoot: 0,
+    path: '',
+    icon: '',
+    type: 'menu',
+    resourceName: '',
+    parent: data.showResource.id,
+    weights: data.showResource.children.length + 1
+  };
+  data.addShow = true;
 }
 
 onMounted(() => {
@@ -279,6 +320,7 @@ onMounted(() => {
         padding: 40px;
         position: relative;
         height: 100%;
+
         .item {
           margin-bottom: 30px;
           display: flex;
@@ -293,10 +335,12 @@ onMounted(() => {
             top: 0;
           }
         }
-        .foot{
+
+        .foot {
           position: absolute;
           bottom: 20px;
-          :deep(.el-divider--horizontal){
+
+          :deep(.el-divider--horizontal) {
             margin-bottom: 20px;
           }
         }
