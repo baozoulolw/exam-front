@@ -17,7 +17,7 @@
       </el-table-column>
       <el-table-column label="姓名" prop="realName" width="200"></el-table-column>
       <el-table-column label="性别" prop="gender"></el-table-column>
-      <el-table-column label="手机号" prop="phone"></el-table-column>
+      <el-table-column label="手机号" prop="phone" show-overflow-tooltip></el-table-column>
       <el-table-column label="地址" prop="address" width="180">
         <template #default="scope">
           <span
@@ -31,6 +31,8 @@
       <el-table-column label="操作" width="120">
         <template #default="scope">
           <div class="table-operate">
+            <span class="item-span" @click="bindRole(scope.row)">角色绑定</span>
+            <el-divider direction="vertical"></el-divider>
             <span class="item-span" @click="edit(scope.row)">编辑</span>
             <el-divider direction="vertical"></el-divider>
             <span class="item-span">删除</span>
@@ -112,6 +114,10 @@ const edit = row => {
   data.editFormData = JSON.parse(JSON.stringify(row));
   data.type = 'edit';
   data.visible = true;
+}
+
+const bindRole = row => {
+
 }
 
 const closeDia = () => {

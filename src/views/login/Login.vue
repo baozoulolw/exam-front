@@ -48,6 +48,7 @@ const toLogin = async () => {
   let res = await post('/login', qs.stringify(data.loginParam));
   console.log(res);
   if (res.status === 2000) {
+    console.log(res.data.user);
     Cookies.set('token', res.data.token);
     localStorage.setItem('user', JSON.stringify(res.data.user));
     await $store.dispatch('setUserInfo', res.data.user)

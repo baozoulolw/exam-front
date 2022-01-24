@@ -50,9 +50,11 @@ import {
 } from '@element-plus/icons'
 import {get} from "../../http/request";
 import {ElMessage} from "element-plus";
+import {getUser} from "../../utils/utils";
 const data = reactive({
   treeData:[]
 })
+const userInfo = getUser();
 let proData = inject('proData');
 
 const handleOpen = (key, keyPath) => {
@@ -63,7 +65,8 @@ const handleClose = (key, keyPath) => {
 }
 
 const getAllResource = async () => {
-  let res = await get('/resource/getAll');
+  //let res = await get('/resource/getAll');
+  let res = await get(`/resource/${userInfo.id}`);
   if (res.status === 1000) {
     data.treeData = res.data;
   } else {
