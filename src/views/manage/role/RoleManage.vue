@@ -25,10 +25,12 @@
       </el-table-column>
       <el-table-column label="最后修改时间" prop="changeTime"></el-table-column>
       <el-table-column label="最后操作人" prop="changeUserName"></el-table-column>
-      <el-table-column label="操作" width="120">
+      <el-table-column label="操作" width="200">
         <template #default="scope">
           <div class="table-operate">
             <span @click="edit(scope.row)" class="item-span">编辑</span>
+            <el-divider direction="vertical"></el-divider>
+            <span @click="editResource(scope.row)" class="item-span">配置资源</span>
             <el-divider direction="vertical"></el-divider>
             <span class="item-span">删除</span>
           </div>
@@ -47,14 +49,25 @@
       ></el-pagination>
     </div>
     <EditRole v-if='data.visible' v-model:visible="data.visible" :roleData="data.editFormData" :type="data.type" @close='getRoleList'></EditRole>
+    <el-dialog v-model="data.resourceShow" title="资源配置" width="600px" :before-close="closeResourceDia" v-if="data.resourceShow">
+      <resource-edit :id="data.resourceId" ref="resource" v-model:visible="data.resourceShow"></resource-edit>
+      <template #footer>
+      <span class="dialog-footer">
+        <t-button theme="default" @click="closeResourceDia" class="mr-12">取消</t-button>
+        <t-button theme="primary" @click="confirmDia" :loading="data.diaLoad">确认</t-button>
+      </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ElMessage, ElSelect } from 'element-plus';
-import { reactive, onMounted } from 'vue'
+import { ElMessage } from 'element-plus';
+import {reactive, onMounted, ref} from 'vue'
 import { post } from '../../../http/request'
 import EditRole from './EditRole.vue';
+import ResourceEdit from "./ResourceEdit.vue";
+
 const data = reactive({
   params: {
     pageNumber: 1,
@@ -63,13 +76,16 @@ const data = reactive({
       roleName: '',
     }
   },
+  resourceShow:false,
+  diaLoad:false,
   total: 0,
   tableData: [],
   visible: false,
   editFormData: {},
   type: 'add',
   searchLoad: false,
-  tableLoad: false
+  tableLoad: false,
+  resourceId:''
 })
 const getRoleList = async () => {
   data.tableLoad = true;
@@ -108,6 +124,22 @@ const edit = row => {
   data.editFormData = JSON.parse(JSON.stringify(row));
   data.type = 'edit';
   data.visible = true;
+}
+
+const editResource = row =>{
+  data.resourceId = row.id;
+  data.resourceShow = true;
+}
+const closeResourceDia = () => {
+  data.resourceShow = false;
+}
+
+const resource = ref(null);
+const confirmDia = async() => {
+  console.log(resource.value);
+  data.diaLoad = true;
+  await resource.value.submit();
+  data.diaLoad = false;
 }
 onMounted(() => {
   getRoleList();

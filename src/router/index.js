@@ -98,6 +98,9 @@ const routes = [
             component:() => import('../views/manage/question/paper/PaperDetails.vue')
           },
         ]
+      },{
+        path:'/404',
+        component:() => import('../components/common/404/NotFound.vue')
       }
     ]
   },
