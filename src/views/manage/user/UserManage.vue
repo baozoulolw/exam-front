@@ -28,7 +28,7 @@
       <el-table-column label="创建时间" prop="createTime" width="180"></el-table-column>
       <el-table-column label="最后修改时间" prop="changeTime" width="180"></el-table-column>
       <el-table-column label="最后操作人" prop="changeUser"></el-table-column>
-      <el-table-column label="操作" width="120">
+      <el-table-column label="操作" width="200">
         <template #default="scope">
           <div class="table-operate">
             <span class="item-span" @click="bindRole(scope.row)">角色绑定</span>

@@ -47,6 +47,7 @@ const getKeys = async () => {
   let res = await get(`/role/resources/${props.id}`);
   if (res.status === 1000) {
     data.selectKeys = res.data;
+    tree.value.setCheckedKeys(data.selectKeys);
     data.oldKeys = deepCloneObj(res.data);
   } else {
     ElMessage.error(res.desc);
@@ -128,9 +129,9 @@ const filterNode = (value, data) => {
   return data.resourceName.indexOf(value) !== -1
 }
 
-onMounted(() => {
-  getResources();
-  getKeys();
+onMounted(async() => {
+  await getResources();
+  await getKeys();
 })
 </script>
 

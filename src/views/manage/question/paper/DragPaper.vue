@@ -1,20 +1,5 @@
 <template>
   <div>
-    <!--    <VueSortableJs v-model:list="data.question.questions" :options="data.sortableOptions">
-          <template #item="{ element, index }">
-            <div class="list-item">
-              <span>
-              {{ element.question.topic }}</span>
-              <div class="operate">
-                <el-button type="text">升序</el-button>
-                <t-divider theme="vertical" />
-                <el-button type="text">降序</el-button>
-                <t-divider theme="vertical" />
-                <el-button type="text">删除</el-button>
-              </div>
-            </div>
-          </template>
-        </VueSortableJs>-->
     <div class="head">
       <el-icon :size="16" style="margin-right: 8px">
         <Warning/>
@@ -29,7 +14,7 @@
             :class="['list-item',{'hover':!data.dragging&&data.hoverId===element.id},{'dragItem':element.id===data.dragId}]"
             @mouseover="mouserHover(element.id)"
             @mouseleave="mouseLeave" :id="element.id">
-          <span>
+          <span class="topic">
           {{ element.question.topic }}</span>
           <div class="operate">
             <el-button type="text" @click="changeSort(element,index,1)" v-show="index !== 0">升序</el-button>
@@ -128,12 +113,17 @@ onMounted(() => {
   align-items: center;
   padding: 0 20px;
   height: 45px;
+  width: 660px;
   border: 1px solid #DCDEE2;
   border-radius: 4px;
   margin-bottom: 10px;
 
   span {
     margin-right: auto;
+    max-width: 450px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .operate {
