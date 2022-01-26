@@ -1,11 +1,14 @@
 <template>
   <div class="main">
     <div class="search">
+      <el-select v-model="data.platform" style="margin-right: 12px" @change="getAllResource">
+        <el-option v-for="item in data.platforms" :key="item.value" :label="item.label" :value="item.value"/>
+      </el-select>
       <el-input v-model="data.keyword" placeholder="输入关键字过滤筛选" class="margin-r wit-3"></el-input>
       <el-button @click="addResource(1)">添加根资源</el-button>
     </div>
     <div class="body">
-      <div class="left">
+      <div class="left" v-loading="data.treeLoad">
         <el-scrollbar>
           <el-tree :data="data.treeData" ref="tree" @node-click="handleNodeClick" :props="data.props"
                    :filter-node-method="filterNode" default-expand-all/>
@@ -118,12 +121,19 @@ const scrollbar = ref(null);
 const form = ref(null)
 const tree = ref(null)
 const data = reactive({
+  platform:'student',
+  treeLoad: false,
   keyword: '',
   treeData: [],
   props: {
     label: 'resourceName',
     children: 'children',
   },
+  platforms: [
+    {label: '学生平台', value: 'student'},
+    {label: '管理平台', value: 'manage'},
+    {label: '教师平台', value: 'teacher'},
+  ],
   addShow: false,
   iconShow: false,
   diaLoad: false,
@@ -133,6 +143,7 @@ const data = reactive({
     icon: '',
     type: '',
     note: '',
+    platform:'student',
     resourceName: ''
   },
   resourceTypes: [
@@ -166,14 +177,16 @@ const addResource = (root) => {
     type: 'menu',
     resourceName: '',
     parent: '',
-    weights:data.treeData.length+1
+    weights: data.treeData.length + 1
   };
   data.resource.isRoot = root;
   data.addShow = true;
 }
 
 const getAllResource = async () => {
-  let res = await get('/resource/getAll');
+  data.treeLoad = true;
+  let res = await get(`/resource/getAll/${data.platform}`);
+  data.treeLoad = false;
   if (res.status === 1000) {
     data.treeData = res.data;
   } else {
@@ -197,10 +210,11 @@ const choseIcon = item => {
 const confirmDia = async () => {
   form.value.validate(async (res) => {
     if (res) {
-      let url = data.resource.id ? '/resource/update':'/resource/add'
+      let url = data.resource.id ? '/resource/update' : '/resource/add'
+      data.resource.platform = data.platform;
       let res = await post(url, data.resource);
       if (res.status === 1000) {
-        ElMessage.success(data.resource.id ? '编辑资源成功':'新增资源成功');
+        ElMessage.success(data.resource.id ? '编辑资源成功' : '新增资源成功');
         data.showResource = deepCloneObj(data.resource);
         closeDia();
         await getAllResource();
@@ -242,12 +256,12 @@ const delResource = () => {
       ElMessage.error(res.desc)
     }
   }).catch(() => {
-        ElMessage.info('Delete canceled');
-      })
+    ElMessage.info('Delete canceled');
+  })
 }
 const editResource = () => {
-  let {id, isRoot, path, icon, type, resourceName,note} = data.showResource;
-  data.resource = {id, isRoot, path, icon, type, resourceName,note};
+  let {id, isRoot, path, icon, type, resourceName, note} = data.showResource;
+  data.resource = {id, isRoot, path, icon, type, resourceName, note};
   data.addShow = true;
 }
 

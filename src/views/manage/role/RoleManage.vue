@@ -53,8 +53,7 @@
       <resource-edit :id="data.resourceId" ref="resource" v-model:visible="data.resourceShow"></resource-edit>
       <template #footer>
       <span class="dialog-footer">
-        <t-button theme="default" @click="closeResourceDia" class="mr-12">取消</t-button>
-        <t-button theme="primary" @click="confirmDia" :loading="data.diaLoad">确认</t-button>
+        <t-button theme="default" @click="closeResourceDia" class="mr-12">关闭</t-button>
       </span>
       </template>
     </el-dialog>

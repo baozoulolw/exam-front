@@ -1,69 +1,72 @@
 <template>
   <div class="main">
-    <div class="search">
-      <el-input v-model="data.params.param.keyword" placeholder="输入关键词" class="margin-r wit-3" clearable></el-input>
-      <el-select v-model="data.params.param.type" placeholder="请选择题型" style="margin-right:10px" clearable>
-        <el-option v-for="item in data.qTypes" :key="item.value" :value="item.value" :label="item.label"></el-option>
-      </el-select>
-      <el-select v-model="data.params.param.hard" placeholder="请选择难度" style="margin-right:20px" clearable>
-        <el-option v-for="item in data.qHards" :key="item.value" :value="item.value" :label="item.label"></el-option>
-      </el-select>
-      <el-button @click="toSearch" :loading="data.searchLoad" type="primary">搜索</el-button>
-      <el-button @click="addQuestion" type="primary" plain>添加试题</el-button>
-    </div>
-    <el-table :data="data.tableData" border style="width: 100%" v-loading="data.tableLoad">
-      <el-table-column label="序号" width="50" align='center' header-align='left'>
-        <template #default="scope">
+    <div></div>
+    <div>
+      <div class="search">
+        <el-input v-model="data.params.param.keyword" placeholder="输入关键词" class="margin-r wit-3" clearable></el-input>
+        <el-select v-model="data.params.param.type" placeholder="请选择题型" style="margin-right:10px" clearable>
+          <el-option v-for="item in data.qTypes" :key="item.value" :value="item.value" :label="item.label"></el-option>
+        </el-select>
+        <el-select v-model="data.params.param.hard" placeholder="请选择难度" style="margin-right:20px" clearable>
+          <el-option v-for="item in data.qHards" :key="item.value" :value="item.value" :label="item.label"></el-option>
+        </el-select>
+        <el-button @click="toSearch" :loading="data.searchLoad" type="primary">搜索</el-button>
+        <el-button @click="addQuestion" type="primary" plain>添加试题</el-button>
+      </div>
+      <el-table :data="data.tableData" border style="width: 100%" v-loading="data.tableLoad">
+        <el-table-column label="序号" width="50" align='center' header-align='left'>
+          <template #default="scope">
               <span
                   class="table-span"
               >{{ (data.params.pageNumber - 1) * data.params.pageSize + scope.$index + 1 }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="题目" prop="topic" show-overflow-tooltip/>
-      <el-table-column label="题型" width="100">
-        <template #default="scope">
+          </template>
+        </el-table-column>
+        <el-table-column label="题目" prop="topic" show-overflow-tooltip/>
+        <el-table-column label="题型" width="100">
+          <template #default="scope">
               <span
                   class="table-span"
               >{{ data.types[scope.row.type] }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="难度" width="100">
-        <template #default="scope">
+          </template>
+        </el-table-column>
+        <el-table-column label="难度" width="100">
+          <template #default="scope">
               <span
                   class="table-span"
               >{{ data.hards[scope.row.hard] }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="创建时间" prop="createTime" width="180">
-        <template #default="scope">
+          </template>
+        </el-table-column>
+        <el-table-column label="创建时间" prop="createTime" width="180">
+          <template #default="scope">
               <span
                   class="table-span"
                   :title="scope.row.createTime"
               >{{ scope.row.createTime ? scope.row.createTime : '---' }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="最后修改时间" prop="changeTime" width="180"></el-table-column>
-      <el-table-column label="最后操作人" prop="changeUser" width="150"></el-table-column>
-      <el-table-column label="操作" width="120">
-        <template #default="scope">
-          <div class="table-operate">
-            <span @click="edit(scope.row)" class="item-span">编辑</span>
-            <el-divider direction="vertical"></el-divider>
-            <span @click='delQuestion(scope.row)' class="item-span">删除</span>
-          </div>
-        </template>
-      </el-table-column>
-    </el-table>
-    <div class="pagination">
-      <el-pagination
-          :pager-count="5"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :page-sizes="[1, 4, 8, 10]"
-          background
-          layout="total, prev, pager, next, sizes, jumper"
-          :total="data.total"
-      ></el-pagination>
+          </template>
+        </el-table-column>
+        <el-table-column label="最后修改时间" prop="changeTime" width="180"></el-table-column>
+        <el-table-column label="最后操作人" prop="changeUser" width="150"></el-table-column>
+        <el-table-column label="操作" width="120">
+          <template #default="scope">
+            <div class="table-operate">
+              <span @click="edit(scope.row)" class="item-span">编辑</span>
+              <el-divider direction="vertical"></el-divider>
+              <span @click='delQuestion(scope.row)' class="item-span">删除</span>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="pagination">
+        <el-pagination
+            :pager-count="5"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :page-sizes="[1, 4, 8, 10]"
+            background
+            layout="total, prev, pager, next, sizes, jumper"
+            :total="data.total"
+        ></el-pagination>
+      </div>
     </div>
   </div>
 </template>
@@ -72,7 +75,7 @@
 import {reactive, onMounted, watch} from 'vue'
 import {get, post} from '../../../../http/request';
 import {onBeforeRouteUpdate, useRouter} from "vue-router";
-import {ElMessageBox,ElMessage} from "element-plus";
+import {ElMessageBox, ElMessage} from "element-plus";
 
 const router = useRouter(); //路由
 
@@ -145,7 +148,7 @@ const addQuestion = () => {
   const path = '/question_edit'
   router.push({path, query: {editType: 'add'}})
 }
-const delQuestion = row =>{
+const delQuestion = row => {
   ElMessageBox.confirm(
       '删除后不可恢复，确认删除此题?',
       '提示',
@@ -155,12 +158,12 @@ const delQuestion = row =>{
         type: 'warning',
       }
   )
-      .then(async() => {
+      .then(async () => {
         let res = await get(`/question/delById/${row.id}`);
-        if(res.status === 1000){
+        if (res.status === 1000) {
           ElMessage.success('删除成功')
           await getQuestionList();
-        }else{
+        } else {
           ElMessage.error(res.desc);
         }
       })

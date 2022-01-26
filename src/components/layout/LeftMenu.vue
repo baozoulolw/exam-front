@@ -51,6 +51,7 @@ import {
 import {get} from "../../http/request";
 import {ElMessage} from "element-plus";
 import {getUser} from "../../utils/utils";
+import Cookies from 'js-cookie'
 const data = reactive({
   treeData:[]
 })
@@ -66,7 +67,7 @@ const handleClose = (key, keyPath) => {
 
 const getAllResource = async () => {
   //let res = await get('/resource/getAll');
-  let res = await get(`/resource/${userInfo.id}`);
+  let res = await get(`/resource/${userInfo.id}?platform=${Cookies.get('platform')}`);
   if (res.status === 1000) {
     data.treeData = res.data;
   } else {

@@ -1,8 +1,14 @@
 <template>
   <div class="body-d">
-    <el-input v-model="data.keyword" size="small" placeholder="输入关键词过滤"></el-input>
+    <div class="search">
+      <el-select v-model="data.platform" style="margin-right: 12px" @change="getResources">
+        <el-option v-for="item in data.platforms" :key="item.value" :label="item.label" :value="item.value"/>
+      </el-select>
+      <el-input v-model="data.keyword" placeholder="输入关键词过滤" clearable></el-input>
+    </div>
     <div class="tree">
       <el-tree
+          v-loading="data.treeLoad"
           ref="tree"
           :props="data.props"
           :data="data.treeData"
@@ -25,11 +31,13 @@ import {deepCloneObj} from "../../../utils/utils";
 
 const props = defineProps({
   id: String,
-  visible:Boolean
+  visible: Boolean
 })
 
 const emit = defineEmits(['update:visible'])
 const data = reactive({
+  treeLoad: false,
+  platform: 'student',
   keyword: '',
   treeData: [],
   selectKeys: [],
@@ -37,14 +45,19 @@ const data = reactive({
     label: 'resourceName',
     children: 'children',
   },
-  oldKeys: []
+  oldKeys: [],
+  platforms: [
+    {label: '学生平台', value: 'student'},
+    {label: '管理平台', value: 'manage'},
+    {label: '教师平台', value: 'teacher'},
+  ],
 })
 
 /**
  * 网络请求
  */
 const getKeys = async () => {
-  let res = await get(`/role/resources/${props.id}`);
+  let res = await get(`/role/resources/${props.id}?platform=${data.platform}`);
   if (res.status === 1000) {
     data.selectKeys = res.data;
     tree.value.setCheckedKeys(data.selectKeys);
@@ -55,12 +68,15 @@ const getKeys = async () => {
 }
 
 const getResources = async () => {
-  let res = await get('/resource/getAll');
+  data.treeLoad = true;
+  let res = await get('/resource/getAll/' + data.platform);
   if (res.status === 1000) {
     data.treeData = res.data;
+    await getKeys();
   } else {
     ElMessage.error(res.desc);
   }
+  data.treeLoad = false;
 }
 /**
  * 事件
@@ -89,9 +105,10 @@ watch(() => tree.value.getCheckedKeys(),
        }
      })*/
 const handleCheckChange = async (val, val2) => {
+  //await submit();
 }
-const check = val => {
-  //console.log(val,'aaa')
+const check = async(val) => {
+  await submit();
 }
 
 const submit = async () => {
@@ -102,14 +119,17 @@ const submit = async () => {
   map.set('add', addIds)
   map.set('del', delIds);
   if (delIds.length !== 0 || addIds !== 0) {
+    data.treeLoad = true;
     let res = await post(`/role/resource/edit/${props.id}`, {add: addIds, del: delIds});
     if (res.status === 1000) {
-      emit('update:visible',false);
+      await getKeys();
+      //emit('update:visible',false);
     } else {
       ElMessage.error(res.desc)
     }
-  }else{
-    emit('update:visible',false);
+    data.treeLoad = false;
+  } else {
+    //emit('update:visible',false);
   }
 }
 
@@ -129,15 +149,17 @@ const filterNode = (value, data) => {
   return data.resourceName.indexOf(value) !== -1
 }
 
-onMounted(async() => {
+onMounted(async () => {
   await getResources();
-  await getKeys();
 })
 </script>
 
 <style scoped lang='less'>
 .body-d {
   padding: 20px;
+  .search{
+    display: flex;
+  }
 
   .tree {
     height: 300px;

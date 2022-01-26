@@ -4,7 +4,34 @@
       <el-image style="width: 30px; height: 30px;" :src="logo" fit="fill"></el-image>
       <span style="margin-left:10px;color:black">Online-Exam</span>
     </div>
-    <div class="menu"></div>
+    <div class="menu">
+      <t-head-menu default-value="2-1" expand-type="popup" style="height: 60px">
+        <t-menu-item value="item1"> 首页 </t-menu-item>
+        <t-submenu value="1">
+          <template #title>
+            <span>菜单1</span>
+          </template>
+          <t-submenu value="1-0" title="子菜单1-1">
+            <t-menu-item value="1-1-1"> 子菜单1-1-1 </t-menu-item>
+            <t-menu-item value="1-1-2"> 子菜单1-1-2 </t-menu-item>
+            <t-menu-item value="1-1-3"> 子菜单1-1-3 </t-menu-item>
+          </t-submenu>
+          <t-menu-item value="1-2"> 子菜单1-2 </t-menu-item>
+          <t-menu-item value="1-3"> 子菜单1-3 </t-menu-item>
+          <t-menu-item value="1-4"> 子菜单1-4 </t-menu-item>
+          <t-submenu value="1-5" title="子菜单1-5">
+            <t-menu-item value="1-5-1"> 子菜单1-5-1 </t-menu-item>
+            <t-menu-item value="1-5-2"> 子菜单1-5-2 </t-menu-item>
+            <t-menu-item value="1-5-3"> 子菜单1-5-3 </t-menu-item>
+          </t-submenu>
+        </t-submenu>
+        <t-submenu value="2" title="菜单2">
+          <t-menu-item value="2-1"> 子菜单2-1 </t-menu-item>
+          <t-menu-item value="2-2"> 子菜单2-2 </t-menu-item>
+          <t-menu-item value="2-3"> 子菜单2-3 </t-menu-item>
+        </t-submenu>
+      </t-head-menu>
+    </div>
     <div class="username">
       <el-icon :size="20">
         <User />

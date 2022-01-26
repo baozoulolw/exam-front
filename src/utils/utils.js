@@ -6,7 +6,7 @@ export function transElIconName(iconName) {
 }
 
 export function getToken() {
-  return localStorage.getItem('user');
+  return Cookies.get("token")
 }
 
 export function getUser() {

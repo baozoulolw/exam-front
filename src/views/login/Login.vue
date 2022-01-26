@@ -11,9 +11,9 @@
         </el-form-item>
         <el-form-item>
           <el-radio-group v-model="data.radio" style="display:flex">
-            <el-radio :label="1">我是学生</el-radio>
-            <el-radio :label="2">我是老师</el-radio>
-            <el-radio :label="3">我是管理员</el-radio>
+            <el-radio label="student">我是学生</el-radio>
+            <el-radio label="teacher">我是老师</el-radio>
+            <el-radio label="manage">我是管理员</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item>
@@ -40,20 +40,21 @@ const data = reactive({
     username: '',
     password: ''
   },
-  radio: 1,
+  radio: 'student',
   butLoad: false
 })
 const toLogin = async () => {
   data.butLoad = true;
-  let res = await post('/login', qs.stringify(data.loginParam));
+  let res = await post('/login?platform='+data.radio, qs.stringify(data.loginParam));
   console.log(res);
   if (res.status === 2000) {
     Cookies.set('token', res.data.token);
     res.data.user.id = res.data.id;
     res.data.user.operUser = res.data.operuser;
     localStorage.setItem('user', JSON.stringify(res.data.user));
-    await $store.dispatch('setUserInfo', res.data.user)
-    let path = data.radio === 1 ? '/student_home' : '/manage_home';
+    await $store.dispatch('setUserInfo', res.data.user);
+    let path = data.radio === 'student' ? '/student_home' : '/manage_home';
+    Cookies.set('platform', data.radio);
     await router.push({path});
   } else {
     ElMessage.error(res.desc);
