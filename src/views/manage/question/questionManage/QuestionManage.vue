@@ -1,7 +1,36 @@
 <template>
   <div class="main">
-    <div></div>
-    <div>
+    <div class="left">
+      <header class="left-head">
+        <span>试题分类</span>
+        <t-button shape="square" variant="outline" size="small">
+          <template #icon>
+            <add-icon size="large"/>
+          </template>
+        </t-button>
+      </header>
+      <div class="filter">
+        <el-input v-model="data.groupFilter" :prefix-icon="Filter" size="mini" placeholder="输入关键词过滤"></el-input>
+      </div>
+      <div class="list">
+        <section v-for="item in showGroup" :key="item.id" class="item">
+          <span class="name">{{ item.groupName }}</span>
+          <el-dropdown>
+            <el-icon>
+            <i-more-filled/>
+            </el-icon>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item>转移分类</el-dropdown-item>
+                <el-dropdown-item>编辑分类</el-dropdown-item>
+                <el-dropdown-item>删除分类</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </section>
+      </div>
+    </div>
+    <div class="right">
       <div class="search">
         <el-input v-model="data.params.param.keyword" placeholder="输入关键词" class="margin-r wit-3" clearable></el-input>
         <el-select v-model="data.params.param.type" placeholder="请选择题型" style="margin-right:10px" clearable>
@@ -72,10 +101,14 @@
 </template>
 
 <script setup>
-import {reactive, onMounted, watch} from 'vue'
+import {reactive, onMounted, watch, computed} from 'vue'
 import {get, post} from '../../../../http/request';
 import {onBeforeRouteUpdate, useRouter} from "vue-router";
 import {ElMessageBox, ElMessage} from "element-plus";
+import {AddIcon, EllipsisIcon} from 'tdesign-icons-vue-next';
+import {
+  Filter,
+} from '@element-plus/icons'
 
 const router = useRouter(); //路由
 
@@ -89,6 +122,7 @@ const data = reactive({
       hard: ''
     }
   },
+  groupList: [],
   qTypes: [
     {value: 0, label: '单选题'},
     {value: 1, label: '多选题'},
@@ -108,7 +142,8 @@ const data = reactive({
   tableLoad: false,
   editType: 'add',
   editQuestion: {},
-  showList: true
+  showList: true,
+  groupFilter: ''
 })
 watch(() => data.showList,
     (n, o) => {
@@ -126,6 +161,19 @@ const getQuestionList = async () => {
     ElMessage.error(res.desc);
   }
   data.tableLoad = false;
+}
+
+let showGroup = computed(() => {
+  console.log(data.groupList);
+  return data.groupList.filter(item => item.groupName.includes(data.groupFilter.trim()));
+})
+const getGroupList = async () => {
+  let res = await get('/question/group/list');
+  if (res.status === 1000) {
+    data.groupList = res.data;
+  } else {
+    ElMessage.error(res.desc);
+  }
 }
 
 const toSearch = () => {
@@ -177,24 +225,71 @@ const edit = row => {
 
 onMounted(() => {
   getQuestionList();
+  getGroupList();
 })
 </script>
 <style scoped lang='less'>
 .main {
   background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
   height: calc(100vh - 100px);
   padding: 20px;
   position: relative;
+  display: flex;
 
-  .search {
-    display: flex;
-    margin-bottom: 30px;
+  .left {
+    min-width: 200px;
+    height: 100%;
+    padding: 0 20px 0 0;
+    border-right: 1px solid var(--el-border-color-base);
+
+    .left-head {
+      display: flex;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--el-border-color-base);
+
+      span {
+        margin-right: auto;
+      }
+    }
+    .list{
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      .item{
+        display: flex;
+        align-items: center;
+        padding: 0 12px;
+        height: 36px;
+        border-radius: 6px;
+        .name{
+          margin-right: auto;
+        }
+      }
+      .item:hover{
+        background:rgba(52, 73, 94,0.2) ;
+      }
+      .item:active{
+        background:rgba(52, 73, 94,0.2) ;
+      }
+    }
   }
 
-  .pagination {
-    position: absolute;
-    right: 20px;
-    bottom: 20px;
+  .right {
+    flex: 1;
+    padding: 0 0 0 20px;
+
+    .search {
+      display: flex;
+      margin-bottom: 30px;
+    }
+
+    .pagination {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+    }
   }
 }
 </style>
