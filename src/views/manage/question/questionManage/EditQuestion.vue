@@ -1,13 +1,6 @@
 <template>
-  <div class="main" v-loading="data.saveLoad">
+  <div class="main-e" v-loading="data.saveLoad">
     <div class="operate">
-      <el-button @click="save()" type="primary">保存</el-button>
-      <el-button @click="backList()" type="primary" plain>
-        返回
-        <el-icon class="el-icon--right">
-          <CaretRight/>
-        </el-icon>
-      </el-button>
     </div>
     <div class="body-question">
       <div class="head-type">
@@ -66,7 +59,6 @@
                 :label="`选项${item.option}`"
             ></el-option>
           </el-select>
-          <el-button :icon="CirclePlus" @click="addOption">添加选项</el-button>
         </section>
         <section v-for="(item,index) in data.options" :key="item.option" class="option">
           <div class="label">
@@ -132,6 +124,7 @@ const router = useRouter(); //路由
 const props = defineProps({
   editType: String,
   id: String,
+  group:String
 })
 const emit = defineEmits(['update:control'])
 const data = reactive({
@@ -141,6 +134,7 @@ const data = reactive({
     hard: 0,
     options: '',
     answer: '',
+    group:'',
   },
   types: [
     {value: 0, label: '单选题'},
@@ -215,10 +209,6 @@ watch(() => router.currentRoute._rawValue.path,
         init();
       }
     })
-const backList = () => {
-  const path = '/questions'
-  router.push({path})
-}
 
 const changeType = val => {
   if (val === 0 || val === 1) {
@@ -317,11 +307,16 @@ onActivated(() => {
 })
 
 onMounted(async() => {
-  console.log(router.currentRoute._rawValue.path);
   if (props.editType === 'edit') {
     await getQuestionById(props.id);
     init();
+  }else{
+    data.question.groupId = props.group;
   }
+})
+
+defineExpose({
+  save,
 })
 
 // onBeforeRouteEnter(() => {
@@ -330,9 +325,7 @@ onMounted(async() => {
 // })
 </script>
 <style scoped lang='less'>
-.main {
-  background: white;
-  height: calc(100vh - 140px);
+.main-e {
   padding: 20px;
 
   .operate {

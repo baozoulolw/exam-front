@@ -3,32 +3,36 @@
     <div class="left">
       <header class="left-head">
         <span>试题分类</span>
-        <t-button shape="square" variant="outline" size="small">
+        <t-button shape="square" variant="outline" @click="addGroup">
           <template #icon>
             <add-icon size="large"/>
           </template>
         </t-button>
       </header>
-      <div class="filter">
+      <div class="filter" style="margin-top: 12px">
         <el-input v-model="data.groupFilter" :prefix-icon="Filter" size="mini" placeholder="输入关键词过滤"></el-input>
       </div>
-      <div class="list">
-        <section v-for="item in showGroup" :key="item.id" class="item">
-          <span class="name">{{ item.groupName }}</span>
-          <el-dropdown>
+      <article class="list">
+        <section :class="['item',{'selected':data.selectedGroup.id === ''}]" @click="selectedGroup({id:'',groupName:'全部'})">
+          <span class="name">{{ `全部 (${data.groupList.reduce((p,{questionNumber})=> {p+=questionNumber;return p},0)})` }}</span>
+        </section>
+        <section v-for="item in showGroup" :key="item.id" :class="['ml','item',{'selected':data.selectedGroup.id === item.id}]"
+                 @click="selectedGroup(item)">
+          <span class="name">{{ `${item.groupName} (${item.questionNumber})` }}</span>
+          <el-dropdown @command="handleCommand">
             <el-icon>
-            <i-more-filled/>
+              <i-more-filled/>
             </el-icon>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item>转移分类</el-dropdown-item>
-                <el-dropdown-item>编辑分类</el-dropdown-item>
-                <el-dropdown-item>删除分类</el-dropdown-item>
+                <el-dropdown-item :command="{type:'trans',param:item}">转移分类</el-dropdown-item>
+                <el-dropdown-item :command="{type:'edit',param:item}" v-if="item.id !== '1'">编辑分类</el-dropdown-item>
+                <el-dropdown-item :command="{type:'del',param:item}" v-if="item.id !== '1'">删除分类</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
         </section>
-      </div>
+      </article>
     </div>
     <div class="right">
       <div class="search">
@@ -41,6 +45,7 @@
         </el-select>
         <el-button @click="toSearch" :loading="data.searchLoad" type="primary">搜索</el-button>
         <el-button @click="addQuestion" type="primary" plain>添加试题</el-button>
+        <span class="group">当前分类:{{data.selectedGroup.groupName}}</span>
       </div>
       <el-table :data="data.tableData" border style="width: 100%" v-loading="data.tableLoad">
         <el-table-column label="序号" width="50" align='center' header-align='left'>
@@ -65,19 +70,21 @@
               >{{ data.hards[scope.row.hard] }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="创建时间" prop="createTime" width="180">
-          <template #default="scope">
-              <span
-                  class="table-span"
-                  :title="scope.row.createTime"
-              >{{ scope.row.createTime ? scope.row.createTime : '---' }}</span>
-          </template>
-        </el-table-column>
+        <!--        <el-table-column label="创建时间" prop="createTime" width="180">
+                  <template #default="scope">
+                      <span
+                          class="table-span"
+                          :title="scope.row.createTime"
+                      >{{ scope.row.createTime ? scope.row.createTime : '-&#45;&#45;' }}</span>
+                  </template>
+                </el-table-column>-->
         <el-table-column label="最后修改时间" prop="changeTime" width="180"></el-table-column>
-        <el-table-column label="最后操作人" prop="changeUser" width="150"></el-table-column>
-        <el-table-column label="操作" width="120">
+        <el-table-column label="最后操作人" prop="changeUser" width="130"></el-table-column>
+        <el-table-column label="操作" width="190">
           <template #default="scope">
             <div class="table-operate">
+              <span @click="changeGroup(scope.row)" class="item-span">更改分组</span>
+              <el-divider direction="vertical"></el-divider>
               <span @click="edit(scope.row)" class="item-span">编辑</span>
               <el-divider direction="vertical"></el-divider>
               <span @click='delQuestion(scope.row)' class="item-span">删除</span>
@@ -90,7 +97,7 @@
             :pager-count="5"
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
-            :page-sizes="[1, 4, 8, 10]"
+            :page-sizes="[4, 8, 10,13]"
             background
             layout="total, prev, pager, next, sizes, jumper"
             :total="data.total"
@@ -98,17 +105,60 @@
       </div>
     </div>
   </div>
+  <t-dialog
+      v-model:visible="data.groupVisible" :header="data.editGroupType === 'add' ? '添加分类':'编辑分类'"
+      width="400px" v-if="data.groupVisible" :on-confirm="onConfirmDia" :on-close="closeDia"
+      :confirm-btn="{content: '保存',theme: 'primary',loading: data.diaLoad,}">
+    <el-form :model="data.groupParam" ref="groupForm" style="margin-top: 20px">
+      <el-form-item label="分类名" prop="groupName" :rules="[{required: true,message: '分类名不能为空'}]">
+        <el-input v-model="data.groupParam.groupName" placeholder="请输入分类名"></el-input>
+      </el-form-item>
+    </el-form>
+  </t-dialog>
+  <t-dialog
+      v-model:visible="data.groupTransVisible" :header="data.editGroupType === 'add' ? '添加分类':'编辑分类'"
+      width="400px" v-if="data.groupTransVisible" :on-confirm="onConfirmTransDia" :on-close="closeTransDia"
+      :confirm-btn="{content: '保存',theme: 'primary',loading: data.diaLoad,}">
+    <el-form :model="data.groupParam" ref="groupForm" style="margin-top: 20px">
+      <el-form-item label="分类名" prop="groupName" :rules="[{required: true,message: '分类名不能为空'}]">
+        <el-input v-model="data.groupParam.groupName" placeholder="请输入分类名" clearable></el-input>
+      </el-form-item>
+    </el-form>
+  </t-dialog>
+  <el-dialog v-model="data.transGroupVisible" title="转移分类" width="400px" :before-close="closeTransDia">
+    <div style="padding-left: 20px">{{`当前分类:  ${data.transFromGroup.groupName}`}}</div>
+    <el-form :model="data.transGroup" ref="groupTransForm" style="margin-top: 20px">
+      <el-form-item label="转移至分类" prop="id" :rules="[{required: true,message: '请选择分类'}]">
+        <el-select style="width: 100%" v-model="data.transGroup.id" placeholder="请选择分类" filterable>
+          <el-option v-for="item in data.groupList.filter(i => i.id !== data.transFromGroup.id)" :key="item.id" :label="item.groupName" :value="item.id"></el-option>
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <t-button theme="default" @click="closeTransDia" class="mr-12">取消</t-button>
+        <t-button theme="primary" @click="confirmTransDia" :loading="data.diaLoad">确认</t-button>
+      </span>
+    </template>
+  </el-dialog>
+  <t-drawer v-model:visible="data.editShow" :header="data.editType === 'add' ? '添加试题':'编辑试题'" size="700px"
+            :on-confirm="onConfirmEditDia" :on-close="closeEditDia"
+            :confirm-btn="{content: '保存',theme: 'primary',loading: data.diaLoad,}">
+    <edit-question v-if=data.editShow ref="editQuestion" :edit-type="data.editType" :id="data.editId" :group="data.addQuestionGroup"></edit-question>
+  </t-drawer>
 </template>
 
 <script setup>
-import {reactive, onMounted, watch, computed} from 'vue'
+import {reactive, onMounted, watch, computed, ref} from 'vue'
 import {get, post} from '../../../../http/request';
 import {onBeforeRouteUpdate, useRouter} from "vue-router";
 import {ElMessageBox, ElMessage} from "element-plus";
 import {AddIcon, EllipsisIcon} from 'tdesign-icons-vue-next';
+import { MessagePlugin } from 'tdesign-vue-next';
 import {
   Filter,
 } from '@element-plus/icons'
+import EditQuestion from "./EditQuestion.vue";
 
 const router = useRouter(); //路由
 
@@ -122,6 +172,23 @@ const data = reactive({
       hard: ''
     }
   },
+  transGroupVisible:false,
+  transFromGroup:{},
+  selectedGroup: {
+    id:'',
+    groupName:'全部'
+  },
+  transGroup:{
+    id:''
+  },
+  editShow:false,
+  diaLoad: false,
+  groupVisible: false,
+  groupTransVisible:false,
+  groupParam: {
+    groupName: ''
+  },
+  editGroupType:'add',
   groupList: [],
   qTypes: [
     {value: 0, label: '单选题'},
@@ -141,13 +208,17 @@ const data = reactive({
   searchLoad: false,
   tableLoad: false,
   editType: 'add',
+  editId:'',
   editQuestion: {},
+  addQuestionGroup:'',
   showList: true,
-  groupFilter: ''
+  groupFilter: '',
+  editGroupId:''
 })
 watch(() => data.showList,
     (n, o) => {
       if (n) {
+        getGroupList();
         toSearch();
       }
     })
@@ -167,6 +238,12 @@ let showGroup = computed(() => {
   console.log(data.groupList);
   return data.groupList.filter(item => item.groupName.includes(data.groupFilter.trim()));
 })
+
+const addGroup = () => {
+  data.groupParam.groupName = '';
+  data.editGroupType = 'add';
+  data.groupVisible = true;
+}
 const getGroupList = async () => {
   let res = await get('/question/group/list');
   if (res.status === 1000) {
@@ -174,6 +251,55 @@ const getGroupList = async () => {
   } else {
     ElMessage.error(res.desc);
   }
+}
+const handleCommand = ({type,param}) => {
+  if(type === 'del'){
+    delGroup(param);
+  }else if(type === 'edit'){
+    editGroup(param);
+  }else if(type === 'trans'){
+    transGroup(param)
+  }
+}
+const editGroup = (item) => {
+  data.editGroupId = item.id;
+  data.groupParam.groupName = item.groupName;
+  data.editGroupType = 'edit';
+  data.groupVisible = true;
+}
+
+const transGroup = item => {
+  if(item.questionNumber < 1){
+    ElMessage.warning('当前分类下暂无试题转移');
+    return;
+  }
+  data.transFromGroup = item;
+  data.transGroup.id = '';
+  data.transGroupVisible = true;
+}
+
+const delGroup = item => {
+  if(item.questionNumber > 0){
+    ElMessage.warning('改分类下还有试题，请转移分组后再删除')
+    return;
+  }
+  ElMessageBox.confirm(
+      '删除后不可恢复，确认删除?',
+      '提示',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+  )
+      .then(async() => {
+        let res = await get(`/question/group/del/${item.id}`)
+        if(res.status === 1000){
+          ElMessage.success('删除成功');
+          getGroupList();
+          selectedGroup({id:'',groupName:'全部'})
+        }
+      })
 }
 
 const toSearch = () => {
@@ -193,8 +319,13 @@ const handleSizeChange = val => {
 }
 
 const addQuestion = () => {
-  const path = '/question_edit'
-  router.push({path, query: {editType: 'add'}})
+  /*const path = '/question_edit'
+  let group = data.selectedGroup.id === '' ? '1': data.selectedGroup.id;
+  console.log(group)
+  router.push({path, query: {editType: 'add',group:group}})*/
+  data.addQuestionGroup = data.selectedGroup.id === '' ? '1': data.selectedGroup.id;
+  data.editType = 'add';
+  data.editShow = true;
 }
 const delQuestion = row => {
   ElMessageBox.confirm(
@@ -210,7 +341,8 @@ const delQuestion = row => {
         let res = await get(`/question/delById/${row.id}`);
         if (res.status === 1000) {
           ElMessage.success('删除成功')
-          await getQuestionList();
+          getQuestionList();
+          getGroupList();
         } else {
           ElMessage.error(res.desc);
         }
@@ -219,8 +351,88 @@ const delQuestion = row => {
 
 const edit = row => {
   data.editQuestion = JSON.parse(JSON.stringify(row));
-  const path = '/question_edit'
-  router.push({path, query: {editType: 'edit', id: data.editQuestion.id}})
+  /*const path = '/question_edit'
+  router.push({path, query: {editType: 'edit', id: data.editQuestion.id}})*/
+  data.editType = 'edit';
+  data.editId = data.editQuestion.id;
+  data.editShow = true;
+}
+
+const selectedGroup = item => {
+  data.selectedGroup = item;
+  data.params.param = {
+    keyword: '',
+    type: '',
+    hard: '',
+    groupId:data.selectedGroup.id
+  }
+  toSearch();
+}
+
+const groupForm = ref();
+const groupTransForm = ref();
+
+const onConfirmDia = () => {
+  groupForm.value.validate(async (checkRes) => {
+    if (checkRes) {
+      let res;
+      let message;
+      data.diaLoad = true;
+      if(data.editGroupType === 'add'){
+        res = await get(`/question/group/add/${data.groupParam.groupName}`)
+        message = '添加成功';
+      }else{
+        res = await post(`/question/group/edit`,{groupName:data.groupParam.groupName,id:data.editGroupId})
+        message = '更新成功';
+      }
+      data.diaLoad = false;
+      if (res.status === 1000) {
+        await MessagePlugin.success(message)
+        closeDia();
+        await getGroupList();
+      } else {
+        await MessagePlugin.error(res.desc)
+      }
+    }
+  })
+}
+const closeDia = () => {
+  data.groupVisible = false;
+}
+
+const closeTransDia = () => {
+  data.transGroupVisible = false;
+}
+
+const confirmTransDia = () => {
+  groupTransForm.value.validate(async(checkRes) => {
+    if(checkRes){
+      data.diaLoad = true;
+      let res = await get(`/question/group/trans?from=${data.transFromGroup.id}&to=${data.transGroup.id}`)
+      data.diaLoad = true;
+      if(res.status === 1000){
+        ElMessage.success('转移成功');
+        closeTransDia();
+        await getQuestionList();
+        await getGroupList();
+      }else{
+        ElMessage.error(res.desc);
+      }
+    }
+  })
+}
+
+const changeGroup = item => {
+
+}
+
+const editQuestion = ref();
+const onConfirmEditDia = () => {
+  editQuestion.value.save();
+}
+
+const closeEditDia = () => {
+
 }
 
 onMounted(() => {
@@ -253,36 +465,53 @@ onMounted(() => {
         margin-right: auto;
       }
     }
-    .list{
+
+    .list {
       margin-top: 20px;
       display: flex;
       flex-direction: column;
-      .item{
+
+      .item {
         display: flex;
         align-items: center;
         padding: 0 12px;
-        height: 36px;
+        height: 45px;
         border-radius: 6px;
-        .name{
+        cursor: pointer;
+        margin-bottom: 7px;
+
+        .name {
           margin-right: auto;
         }
       }
-      .item:hover{
-        background:rgba(52, 73, 94,0.2) ;
+
+      .item:hover {
+        background: rgba(52, 73, 94, 0.1);
       }
-      .item:active{
-        background:rgba(52, 73, 94,0.2) ;
+
+      .item:active {
+        background: rgba(52, 73, 94, 0.1);
+      }
+
+      .selected {
+        background: rgba(52, 73, 94, 0.1);
       }
     }
   }
 
   .right {
     flex: 1;
+    overflow: hidden;
     padding: 0 0 0 20px;
 
     .search {
       display: flex;
       margin-bottom: 30px;
+      align-items: center;
+      .group {
+        margin-left: auto;
+        font-size: 16px;
+      }
     }
 
     .pagination {

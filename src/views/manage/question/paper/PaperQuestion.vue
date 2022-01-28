@@ -3,6 +3,10 @@
     <div class="search-q">
       <t-input class="mr-12" style="width: 300px" v-model="data.searchParam.param.keyword" clearable
                placeholder="请输入关键词"/>
+      <t-select class="mr-12" v-model="data.searchParam.param.groupId" placeholder="请选择分类"
+                clearable style="width: 150px">
+        <t-option v-for="item in data.groupList" :key="item.id" :label="`${item.groupName} (${item.questionNumber})`" :value="item.id"></t-option>
+      </t-select>
       <t-select class="mr-12" v-model="data.searchParam.param.type" :options="data.qTypes" placeholder="请选择题型"
                 clearable style="width: 150px"/>
       <t-select class="mr-12" v-model="data.searchParam.param.hard" :options="data.qHards" placeholder="请选择难度"
@@ -36,13 +40,15 @@
           @currentChange="onCurrentChange"
       />
     </div>
+    <div style="display: flex; align-items: center;margin-top: 12px"><icon name="error-circle" size="17px" style="margin-right: 7px"/> 注：不会出现已选择的试题</div>
   </div>
 </template>
 
 <script setup>
 import {reactive, onMounted} from 'vue'
-import {post} from "../../../../http/request";
+import {get, post} from "../../../../http/request";
 import {ElMessage} from "element-plus";
+import { Icon } from 'tdesign-icons-vue-next';
 
 const props = defineProps({
   paperId: String,
@@ -60,9 +66,11 @@ const data = reactive({
       keyword: '',
       type: '',
       hard: '',
-      selectPaperId: props.paperId
+      selectPaperId: props.paperId,
+      groupId:''
     }
   },
+  groupList:[],
   selectedRowKeys: [],
   qShowTypes: ['单选题', '多选题', '判断题', '填空题'],
   hards: ['简单', '中等', '困难'],
@@ -100,6 +108,15 @@ const getQuestions = async () => {
   data.tableLoad = false;
 }
 
+const getGroupList = async () => {
+  let res = await get('/question/group/list');
+  if (res.status === 1000) {
+    data.groupList = res.data;
+  } else {
+    ElMessage.error(res.desc);
+  }
+}
+
 /**
  * 事件
  */
@@ -125,6 +142,7 @@ const rehandleSelectChange = (value, {selectedRowData}) => {
 
 onMounted(() => {
   data.selectedRowKeys = props.selectId;
+  getGroupList();
   toSearch();
 })
 </script>

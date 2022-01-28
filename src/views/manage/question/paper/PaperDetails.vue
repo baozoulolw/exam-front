@@ -1,167 +1,181 @@
 <template>
   <div v-loading="data.isLoad" class="main">
-      <div>
-        <div class="title">
-          <span style="margin-right: auto">{{ data.paper.paperName }}</span>
-          <el-button @click="back" type="primary" plain>返回</el-button>
-        </div>
-        <div class="info">
-          <el-image :src="data.paper.drawerUserInfo.gender === '女' ? woman:man" style="height: 16px;"></el-image>
-          <span style="margin-right: 20px">{{ `出卷人: ${data.paper.drawerUserInfo.realName}` }}</span>
-
-          <el-image :src="time" style="height: 24px;"></el-image>
-          <span style="margin-right: 20px">{{ `创建于${data.paper.createTime}` }}</span>
-
-          <el-image :src="time" style="height: 24px;"></el-image>
-          <span style="margin-right: 20px">{{ `修改于${data.paper.changeTime}` }}</span>
-
-          <el-image :src="data.paper.changeUserInfo.gender === '女' ? woman:man" style="height: 16px;"></el-image>
-          <span style="margin-right: 20px">{{ `修改人: ${data.paper.changeUserInfo.realName}` }}</span>
-
-          <el-image :src="hard" style="height: 14px;margin-right: 5px"></el-image>
-          <span>{{ `难度: ${data.paper.hard === 0 ? '简单' : data.paper.hard === 1 ? '中等' : '困难'}` }}</span>
-        </div>
+    <div>
+      <div class="title">
+        <span style="margin-right: auto">{{ data.paper.paperName }}</span>
+        <el-button @click="back" type="primary" plain>返回</el-button>
       </div>
-      <el-divider></el-divider>
-      <div class="questions">
-        <div class="info-title">
-          <div class="name">试题信息</div>
-          <span class="score">总分:</span>
-          <el-tag class="mr-20" effect="plain" type="danger">{{ totalScore }}</el-tag>
-          <span class="size mr-20">{{ `试题数量: ${data.types.reduce((p, i) => p + i.questions.length, 0)}` }}</span>
-          <t-button variant="outline" @click="addQuestion">
-            <template #icon>
-              <add-icon></add-icon>
-            </template>
-            添加试题
-          </t-button>
-        </div>
-        <div class="body-question">
-          <section v-for="item in data.types" :key="item.value" class="item">
-            <div class="type" @click="()=> item.trans = !item.trans">
-              <el-icon :class="['down',{'trans':item.trans}]">
-                <ArrowDownBold/>
-              </el-icon>
-              <span style="margin-right: 40px">{{ item.label }}</span>
-              <span style="margin-right: 40px">{{ `题目数: ${item.questions.length}` }}</span>
-              <span style="margin-right: auto">{{ `分值: ${item.questions.reduce((p, i) => p + i.score, 0)}` }}</span>
-              <t-button theme="primary" variant="outline" @click.stop="dragQuestion(item)" style="margin-right: 12px">
-                <template #icon>
-                  <swap-icon/>
-                </template>
-                编辑顺序
-              </t-button>
-              <t-button theme="primary" variant="outline" @click.stop="clean(item)">
-                <template #icon>
-                  <delete-icon/>
-                </template>
-                清空
-              </t-button>
+      <div class="info">
+        <el-image :src="data.paper.drawerUserInfo.gender === '女' ? woman:man" style="height: 16px;"></el-image>
+        <span style="margin-right: 20px">{{ `出卷人: ${data.paper.drawerUserInfo.realName}` }}</span>
+
+        <el-image :src="time" style="height: 24px;"></el-image>
+        <span style="margin-right: 20px">{{ `创建于${data.paper.createTime}` }}</span>
+
+        <el-image :src="time" style="height: 24px;"></el-image>
+        <span style="margin-right: 20px">{{ `修改于${data.paper.changeTime}` }}</span>
+
+        <el-image :src="data.paper.changeUserInfo.gender === '女' ? woman:man" style="height: 16px;"></el-image>
+        <span style="margin-right: 20px">{{ `修改人: ${data.paper.changeUserInfo.realName}` }}</span>
+
+        <el-image :src="hard" style="height: 14px;margin-right: 5px"></el-image>
+        <span>{{ `难度: ${data.paper.hard === 0 ? '简单' : data.paper.hard === 1 ? '中等' : '困难'}` }}</span>
+      </div>
+    </div>
+    <el-divider></el-divider>
+    <div class="questions">
+      <div class="info-title">
+        <div class="name">试题信息</div>
+        <span class="score">总分:</span>
+        <el-tag class="mr-20" effect="plain" type="danger">{{ totalScore }}</el-tag>
+        <span class="size mr-20">{{ `试题数量: ${data.types.reduce((p, i) => p + i.questions.length, 0)}` }}</span>
+        <t-button variant="outline" @click="addQuestion">
+          <template #icon>
+            <add-icon></add-icon>
+          </template>
+          添加试题
+        </t-button>
+      </div>
+      <el-scrollbar class="body-question" max-height="calc(100vh - 380px)">
+        <section v-for="item in data.types" :key="item.value" class="item">
+          <div class="type" @click="()=> item.trans = !item.trans">
+            <el-icon :class="['down',{'trans':item.trans}]">
+              <ArrowDownBold/>
+            </el-icon>
+            <span style="margin-right: 40px">{{ item.label }}</span>
+            <span style="margin-right: 40px">{{ `题目数: ${item.questions.length}` }}</span>
+            <span style="margin-right: auto">{{ `分值: ${item.questions.reduce((p, i) => p + i.score, 0)}` }}</span>
+            <t-button theme="primary" variant="outline" @click.stop="dragQuestion(item)" style="margin-right: 12px">
+              <template #icon>
+                <swap-icon/>
+              </template>
+              编辑顺序
+            </t-button>
+            <t-button theme="primary" variant="outline" @click.stop="clean(item)">
+              <template #icon>
+                <delete-icon/>
+              </template>
+              清空
+            </t-button>
+          </div>
+          <el-collapse-transition>
+            <div v-show='!item.trans' style="padding: 0 30px">
+              <el-table v-show="item.questions.length > 0" :data="item.questions" style="width: 100%"
+                        :cell-style="{height:'36px'}">
+                <el-table-column type="index" label="题号" width="100"/>
+                <el-table-column prop="question.topic" label="题目" show-overflow-tooltip/>
+                <el-table-column prop="question.hard" label="难度" width="100">
+                  <template #default="scope">
+                    <span>{{ scope.row.question.hard === 0 ? '简单' : data.paper.hard === 1 ? '中等' : '困难' }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="score" label="分值" width="100">
+                  <template #default="scope">
+                    <t-tag theme="success">{{ scope.row.score }}</t-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column label="操作" width="150">
+                  <template #default="scope">
+                    <div class="table-operate">
+                      <span class="item-span" @click="questionDetail(scope.row)">预览</span>
+                      <el-divider direction="vertical"></el-divider>
+                      <span class="item-span" @click="openScore(scope.row)">调整分值</span>
+                    </div>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <empty v-show="item.questions.length === 0"></empty>
             </div>
-            <el-collapse-transition>
-              <div v-show='!item.trans' style="padding: 0 30px">
-                <el-table v-show="item.questions.length > 0" :data="item.questions" style="width: 100%"
-                          :cell-style="{height:'36px'}">
-                  <el-table-column type="index" label="题号" width="100"/>
-                  <el-table-column prop="question.topic" label="题目" show-overflow-tooltip/>
-                  <el-table-column prop="question.hard" label="难度" width="100">
-                    <template #default="scope">
-                      <span>{{ scope.row.question.hard === 0 ? '简单' : data.paper.hard === 1 ? '中等' : '困难' }}</span>
-                    </template>
-                  </el-table-column>
-                  <el-table-column prop="score" label="分值" width="100">
-                    <template #default="scope">
-                      <el-tag type="success">{{ scope.row.score }}</el-tag>
-                    </template>
-                  </el-table-column>
-                  <el-table-column label="操作" width="150">
-                    <template #default="scope">
-                      <div class="table-operate">
-                        <span class="item-span" @click="questionDetail(scope.row)">预览</span>
-                        <el-divider direction="vertical"></el-divider>
-                        <span class="item-span" @click="openScore(scope.row)">调整分值</span>
-                      </div>
-                    </template>
-                  </el-table-column>
-                </el-table>
-                <empty v-show="item.questions.length === 0"></empty>
-              </div>
-            </el-collapse-transition>
+          </el-collapse-transition>
+        </section>
+      </el-scrollbar>
+    </div>
+    <el-dialog v-model="data.questionShow" title="题目预览"
+               width="600px">
+      <div class="mb-20" style="display: flex;align-items: center;justify-content: flex-end;padding-right: 40px">
+        <el-tag class="mr-30">{{ getType(data.questionInfo.question.type) }}</el-tag>
+        <span class="mr-12">分值: </span>
+        <el-tag type="warning">{{ data.questionInfo.score }}</el-tag>
+      </div>
+      <div class="mb-20">
+        <span>{{ `${data.questionInfo.sort + 1}.${data.questionInfo.question.topic}` }}</span>
+      </div>
+      <div style="padding-bottom: 20px">
+        <div v-if="data.questionInfo.question.type === 0">
+          <section v-for="item in data.options" :key="item.option" class="mb-10">
+            <el-tag :type="data.questionInfo.question.answer === item.option ? 'success':'danger'" size="small"
+                    class="mr-20">{{ item.option }}
+            </el-tag>
+            <span>{{ item.value }}</span>
+          </section>
+          <div style="display: flex;align-items: center;justify-content: flex-end;padding-right: 40px">答案：
+            <el-tag size="small" type="success">{{ data.questionInfo.question.answer }}</el-tag>
+          </div>
+        </div>
+        <div v-if="data.questionInfo.question.type === 1">
+          <section v-for="item in data.options" :key="item.option" class="mb-10">
+            <el-tag
+                :type="JSON.parse(data.questionInfo.question.answer).some(v => item.option === v) ? 'success':'danger'"
+                size="small"
+                class="mr-20">{{ item.option }}
+            </el-tag>
+            <span>{{ item.value }}</span>
+          </section>
+          <div style="display: flex;align-items: center;justify-content: flex-end;padding-right: 40px">答案：
+
+            <el-tag style="margin-right: 10px" size="small" type="success"
+                    v-for="item in JSON.parse(data.questionInfo.question.answer)" :key="item">
+              {{ item }}
+            </el-tag>
+          </div>
+        </div>
+        <div v-if="data.questionInfo.question.type === 2">
+          <div class="mb-10">
+            <el-tag class="mr-20" size="small">1</el-tag>
+            <span class="status correct"></span></div>
+          <div class="mb-20">
+            <el-tag class="mr-20" size="small">2</el-tag>
+            <span class="status incorrect"></span></div>
+          <div style="display: flex;align-items: center;justify-content: flex-end;padding-right: 40px">答案：
+            <el-tag style="margin-right: 10px" size="small" type="success"
+                    v-for="item in JSON.parse(data.questionInfo.question.answer)" :key="item">
+              {{ item }}
+            </el-tag>
+          </div>
+        </div>
+        <div v-if="data.questionInfo.question.type === 3">
+          <section v-for="(item,index) in JSON.parse(data.questionInfo.question.answer)" :key="index">
+            <el-tag size="small" class="mr-20">{{ `填空${index + 1}` }}</el-tag>
+            答案： {{ item.value }}
           </section>
         </div>
       </div>
-      <el-dialog v-model="data.questionShow" title="题目预览"
-                 width="600px">
-        <div class="mb-20" style="display: flex;align-items: center;justify-content: flex-end;padding-right: 40px">
-          <el-tag class="mr-30">{{ getType(data.questionInfo.question.type) }}</el-tag>
-          <span class="mr-12">分值: </span>
-          <el-tag type="warning">{{ data.questionInfo.score }}</el-tag>
-        </div>
-        <div class="mb-20">
-          <span>{{ `${data.questionInfo.sort + 1}.${data.questionInfo.question.topic}` }}</span>
-        </div>
-        <div style="padding-bottom: 20px">
-          <div v-if="data.questionInfo.question.type === 0">
-            <section v-for="item in data.options" :key="item.option" class="mb-10">
-              <el-tag :type="data.questionInfo.question.answer === item.option ? 'success':'danger'" size="small"
-                      class="mr-20">{{ item.option }}
-              </el-tag>
-              <span>{{ item.value }}</span>
-            </section>
-            <div style="display: flex;align-items: center;justify-content: flex-end;padding-right: 40px">答案：
-              <el-tag size="small" type="success">{{ data.questionInfo.question.answer }}</el-tag>
-            </div>
-          </div>
-          <div v-if="data.questionInfo.question.type === 1">
-            <section v-for="item in data.options" :key="item.option" class="mb-10">
-              <el-tag
-                  :type="JSON.parse(data.questionInfo.question.answer).some(v => item.option === v) ? 'success':'danger'"
-                  size="small"
-                  class="mr-20">{{ item.option }}
-              </el-tag>
-              <span>{{ item.value }}</span>
-            </section>
-            <div style="display: flex;align-items: center;justify-content: flex-end;padding-right: 40px">答案：
+    </el-dialog>
+    <t-dialog v-model:visible="data.addShow" header="添加试题" width="1000px" v-if="data.addShow"
+              :on-confirm="onConfirmDia" :on-close="closeDia"
+              :confirm-btn="{content: '保存',theme: 'primary',loading: data.diaLoad,}">
+      <paper-question :paperId="props.id" v-model:selectId="data.selectedRowKeys"></paper-question>
+    </t-dialog>
 
-              <el-tag style="margin-right: 10px" size="small" type="success"
-                      v-for="item in JSON.parse(data.questionInfo.question.answer)" :key="item">
-                {{ item }}
-              </el-tag>
-            </div>
-          </div>
-          <div v-if="data.questionInfo.question.type === 2">
-            <div class="mb-10">
-              <el-tag class="mr-20" size="small">1</el-tag>
-              <span class="status correct"></span></div>
-            <div class="mb-20">
-              <el-tag class="mr-20" size="small">2</el-tag>
-              <span class="status incorrect"></span></div>
-            <div style="display: flex;align-items: center;justify-content: flex-end;padding-right: 40px">答案：
-              <el-tag style="margin-right: 10px" size="small" type="success"
-                      v-for="item in JSON.parse(data.questionInfo.question.answer)" :key="item">
-                {{ item }}
-              </el-tag>
-            </div>
-          </div>
-          <div v-if="data.questionInfo.question.type === 3">
-            <section v-for="(item,index) in JSON.parse(data.questionInfo.question.answer)" :key="index">
-              <el-tag size="small" class="mr-20">{{ `填空${index + 1}` }}</el-tag>
-              答案： {{ item.value }}
-            </section>
-          </div>
-        </div>
-      </el-dialog>
-      <t-dialog v-model:visible="data.addShow" header="添加试题" width="1000px" v-if="data.addShow"
-                :on-confirm="onConfirmDia" :on-close="closeDia"
-                :confirm-btn="{content: '保存',theme: 'primary',loading: data.diaLoad,}">
-        <paper-question :paperId="props.id" v-model:selectId="data.selectedRowKeys"></paper-question>
-      </t-dialog>
-
-      <t-drawer v-model:visible="data.dragShow" header="编辑顺序" size="700px" v-if="data.dragShow"
-                :on-confirm="onConfirmDragDia" :on-close="closeDragDia"
-                :confirm-btn="{content: '保存',theme: 'primary',loading: data.diaLoad,}">
+    <t-drawer v-model:visible="data.dragShow" header="编辑顺序" size="700px"
+              :on-confirm="onConfirmDragDia" :on-close="closeDragDia"
+              :confirm-btn="{content: '保存',theme: 'primary',loading: data.diaLoad,}">
+      <drag-paper :paperId="props.id" v-model:question="data.editQuestion" v-model:delIds="data.delIds" v-if="data.dragShow"></drag-paper>
+    </t-drawer>
+<!--    <el-drawer v-model="data.dragShow">
+      <template #title>
+        <h4>编辑顺序</h4>
+      </template>
+      <template #default>
         <drag-paper :paperId="props.id" v-model:question="data.editQuestion" v-model:delIds="data.delIds"></drag-paper>
-      </t-drawer>
+      </template>
+      <template #footer>
+        <div style="flex: auto">
+          <el-button @click="closeDragDia">取消</el-button>
+          <el-button type="primary" @click="onConfirmDragDia" :loading="data.diaLoad">保存</el-button>
+        </div>
+      </template>
+    </el-drawer>-->
   </div>
 </template>
 
@@ -391,6 +405,7 @@ onMounted(() => {
   height: calc(100vh - 100px);
   box-sizing: border-box;
   padding: 60px;
+  overflow: hidden;
 
   .title {
     font-size: 34px;

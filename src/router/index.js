@@ -75,14 +75,6 @@ const routes = [
             component:() => import('../views/manage/question/questionManage/QuestionManage.vue')
           },
           {
-            path:'/question_edit',
-            meta:{
-              title:'编辑试题'
-            },
-            props: route => ({id:route.query.id,editType:route.query.editType}),
-            component:() => import('../views/manage/question/questionManage/EditQuestion.vue')
-          },
-          {
             path:'/paper',
             meta:{
               title:'试卷管理'
