@@ -125,6 +125,7 @@
       </el-form-item>
     </el-form>
   </t-dialog>
+  <!--  分类转移-->
   <el-dialog v-model="data.transGroupVisible" title="转移分类" width="400px" :before-close="closeTransDia">
     <div style="padding-left: 20px">{{`当前分类:  ${data.transFromGroup.groupName}`}}</div>
     <el-form :model="data.transGroup" ref="groupTransForm" style="margin-top: 20px">
@@ -138,6 +139,23 @@
       <span class="dialog-footer">
         <t-button theme="default" @click="closeTransDia" class="mr-12">取消</t-button>
         <t-button theme="primary" @click="confirmTransDia" :loading="data.diaLoad">确认</t-button>
+      </span>
+    </template>
+  </el-dialog>
+  <!--  试题分类更改-->
+  <el-dialog v-model="data.changeGroupVisible" title="更改分类" width="400px" :before-close="closeChangeGroupDia">
+    <div style="padding-left: 20px">{{`当前分类:  ${data.transFromGroup.groupName}`}}</div>
+    <el-form :model="data.changeGroup" ref="changeGroupForm" style="margin-top: 20px">
+      <el-form-item label="转移至分类" prop="id" :rules="[{required: true,message: '请选择分类'}]">
+        <el-select style="width: 100%" v-model="data.changeGroup.id" placeholder="请选择分类" filterable>
+          <el-option v-for="item in data.groupList.filter(i => i.id !== data.transFromGroup.id)" :key="item.id" :label="item.groupName" :value="item.id"></el-option>
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <t-button theme="default" @click="closeChangeGroupDia" class="mr-12">取消</t-button>
+        <t-button theme="primary" @click="confirmChangeGroupDia" :loading="data.diaLoad">确认</t-button>
       </span>
     </template>
   </el-dialog>
@@ -159,6 +177,7 @@ import {
   Filter,
 } from '@element-plus/icons'
 import EditQuestion from "./EditQuestion.vue";
+import {getObjByType} from "../../../../utils/utils";
 
 const router = useRouter(); //路由
 
@@ -181,10 +200,14 @@ const data = reactive({
   transGroup:{
     id:''
   },
+  changeGroup:{
+    id:''
+  },
   editShow:false,
   diaLoad: false,
   groupVisible: false,
   groupTransVisible:false,
+  changeGroupVisible:false,
   groupParam: {
     groupName: ''
   },
@@ -213,7 +236,8 @@ const data = reactive({
   addQuestionGroup:'',
   showList: true,
   groupFilter: '',
-  editGroupId:''
+  editGroupId:'',
+  changeGroupId:''
 })
 watch(() => data.showList,
     (n, o) => {
@@ -371,6 +395,7 @@ const selectedGroup = item => {
 
 const groupForm = ref();
 const groupTransForm = ref();
+const changeGroupForm = ref();
 
 const onConfirmDia = () => {
   groupForm.value.validate(async (checkRes) => {
@@ -404,6 +429,10 @@ const closeTransDia = () => {
   data.transGroupVisible = false;
 }
 
+const closeChangeGroupDia = () => {
+  data.changeGroupVisible = false;
+}
+
 const confirmTransDia = () => {
   groupTransForm.value.validate(async(checkRes) => {
     if(checkRes){
@@ -422,8 +451,28 @@ const confirmTransDia = () => {
   })
 }
 
-const changeGroup = item => {
+const confirmChangeGroupDia = () => {
+  changeGroupForm.value.validate(async(checkRes) => {
+    if(checkRes){
+      data.diaLoad = true;
+      let res = await post(`/question/edit`,{id:data.changeGroupId,groupId:data.changeGroup.id})
+      data.diaLoad = true;
+      if(res.status === 1000){
+        ElMessage.success('更改分类成功');
+        closeChangeGroupDia();
+        await getQuestionList();
+        await getGroupList();
+      }else{
+        ElMessage.error(res.desc);
+      }
+    }
+  })
+}
 
+const changeGroup = item => {
+  data.transFromGroup = getObjByType(data.groupList,'id',item.groupId)
+  data.changeGroupId = item.id;
+  data.changeGroupVisible = true;
 }
 
 const editQuestion = ref();

@@ -21,11 +21,11 @@ export function getAddressStringByCode(arr) {
   }
 }
 
-export function getObjByType(list, key, value) {
+export function getObjByType(list, key, value,deep=true) {
   let obj = '';
   list.some(i => {
     if (i[key] === value) {
-      obj = deepCloneObj(i)
+      obj = deep ? deepCloneObj(i):i;
       return true;
     }
   })
