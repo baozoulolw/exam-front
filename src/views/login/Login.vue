@@ -1,5 +1,6 @@
 <template>
   <div class="login-body">
+   <!-- 登录表单-->
     <div class="form">
       <div class="title">在线考试系统</div>
       <el-form :model="data.loginParam" style="width: 100%;">
@@ -36,24 +37,31 @@ import { useRouter } from "vue-router";
 
 const router = useRouter(); //路由
 const data = reactive({
+  //登录账号密码参数
   loginParam: {
     username: '',
     password: ''
   },
+  //登录平台
   radio: 'student',
+  //登录按钮加载控制
   butLoad: false
 })
+// 点击登录按钮触发
 const toLogin = async () => {
   data.butLoad = true;
   let res = await post('/login?platform='+data.radio, qs.stringify(data.loginParam));
   console.log(res);
   if (res.status === 2000) {
+    //将token存入cookie
     Cookies.set('token', res.data.token);
     res.data.user.id = res.data.id;
     res.data.user.operUser = res.data.operuser;
+    //将登录用户信息序列化进localStorage 和 vuex
     localStorage.setItem('user', JSON.stringify(res.data.user));
     await $store.dispatch('setUserInfo', res.data.user);
     let path = data.radio === 'student' ? '/student_home' : '/manage_home';
+    // 将当前登录平台存入cookie
     Cookies.set('platform', data.radio);
     await router.push({path});
   } else {

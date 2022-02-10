@@ -1,10 +1,12 @@
 <template>
   <div class="main">
+    <!--搜索栏-->
     <div class="search">
       <el-input v-model="data.params.param.roleName" placeholder="输入角色名" class="margin-r wit-3"></el-input>
       <el-button @click="toSearch" :loading="data.searchLoad">搜索</el-button>
       <el-button @click="addRole">添加角色</el-button>
     </div>
+    <!--    角色表格区域-->
     <el-table :data="data.tableData" border style="width: 100%" v-loading="data.tableLoad">
       <el-table-column label="角色名称" prop="roleName" width="200"></el-table-column>
       <el-table-column label="备注" prop="remark"></el-table-column>
@@ -37,6 +39,7 @@
         </template>
       </el-table-column>
     </el-table>
+    <!--分页控制-->
     <div class="pagination">
       <el-pagination
         :pager-count="5"
@@ -48,7 +51,9 @@
         :total="data.total"
       ></el-pagination>
     </div>
+    <!--    编辑或新增角色弹窗-->
     <EditRole v-if='data.visible' v-model:visible="data.visible" :roleData="data.editFormData" :type="data.type" @close='getRoleList'></EditRole>
+    <!--    资源配置弹窗-->
     <el-dialog v-model="data.resourceShow" title="资源配置" width="600px" :before-close="closeResourceDia" v-if="data.resourceShow">
       <resource-edit :id="data.resourceId" ref="resource" v-model:visible="data.resourceShow"></resource-edit>
       <template #footer>

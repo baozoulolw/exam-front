@@ -1,5 +1,6 @@
 <template>
   <div class="main">
+    <!--缩放左边菜单控制-->
     <el-icon :size="20" @click="collapseChange" class="collapse">
       <Expand v-if="proData.menuCollapse" />
       <Fold v-else />
@@ -11,9 +12,11 @@
       <span class="name">{{ userInfo.username }}</span>
     </div>
     <el-popover placement="bottom-end" :width="200" trigger="hover" popper-class="head-pop">
+      <!--头像-->
       <template #reference>
         <el-avatar :size="45" :src="userInfo.avatarUrl" class="avatar"></el-avatar>
       </template>
+      <!--鼠标放在头像上呼出菜单-->
       <div>
         <el-button type="text" class="item" @click="logout()">退出登录</el-button>
       </div>
@@ -33,14 +36,17 @@ import {
   Avatar, Fold, Expand, User
 } from '@element-plus/icons'
 
+
 const userInfo = getUser();
 const router = useRouter();
 let proData = inject('proData');
 
+//点击进行菜单缩放或显示
 const collapseChange = () => {
   proData.menuCollapse = !proData.menuCollapse;
 }
 
+//退出登录
 const logout = () => {
   Cookies.remove('token');
   localStorage.removeItem('user');

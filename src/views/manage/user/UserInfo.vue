@@ -6,6 +6,7 @@
         <t-steps v-model="data.current" :options="data.steps" readonly/>
       </div>
       <div class="body">
+        <!--输入基本信息流程（第一步）-->
         <div v-show="data.current === 1" class="baseInfo">
           <el-form ref="baseForm" :model="user" :rules="data.rules" label-width="100px">
             <div class="form-body">
@@ -25,6 +26,7 @@
             </div>
           </el-form>
         </div>
+        <!--输入住址、电话号码、电子邮箱流程（第二步）-->
         <div v-show="data.current === 2" class="detailedInfo">
           <el-form ref="detailedForm" :model="user" :rules="data.rules" label-width="100px">
             <el-form-item label="住址">
@@ -39,6 +41,7 @@
             </el-form-item>
           </el-form>
         </div>
+        <!--输入用户名和密码流程（第三步）-->
         <div v-show="data.current === 3" class="sysInfo">
           <div class="left">
             <el-form ref="sysForm" :model="user" :rules="data.rules" label-width="100px">
@@ -50,12 +53,14 @@
               </el-form-item>
             </el-form>
           </div>
+          <!--输入用户名密码提示-->
           <div class="right">
             <div style="margin-bottom: 10px">*用户名：5-20个以字母开头、可带数字、“_”、“.”的字串</div>
             <div>*密码：6-20个字母、数字、下划线的字符串</div>
           </div>
         </div>
       </div>
+      <!-- 弹窗底部按钮-->
       <template #footer>
       <span class="dialog-footer">
         <t-button theme="default" @click="handleClose" class="mr-12">取消</t-button>
@@ -78,14 +83,16 @@ import {regionData, CodeToText} from 'element-china-area-data'
 import {get, post} from "../../../http/request";
 
 const props = defineProps({
-  visible: Boolean
+  visible: Boolean // 弹窗显示控制
 })
 const i = getCurrentInstance();
 const emit = defineEmits(['update:visible','close'])
 
+// 监听弹窗显示控制，以便第一时间赋值
 watch(() => props.visible,
     n => data.visible = n)
 
+// 验证是否为电话号码的方法
 const checkPhone = (rule, value, callback) => {
   let regP = /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/;
   if (value !== '' && !regP.test(value)) {
@@ -95,6 +102,7 @@ const checkPhone = (rule, value, callback) => {
   }
 }
 
+// 验证是否为电子邮件的方法
 const checkEmail = (rule, value, callback) => {
   let regP = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
   if (value !== '' && !regP.test(value)) {
@@ -104,6 +112,7 @@ const checkEmail = (rule, value, callback) => {
   }
 }
 
+// 校验用户名是否符合标准的方法
 const checkUsername = async (rule, value, callback) => {
   let reg = /^[a-zA-Z]{1}([a-zA-Z0-9]|[._]){4,19}$/;
   if (!reg.test(value)) {
@@ -118,6 +127,7 @@ const checkUsername = async (rule, value, callback) => {
   }
 }
 
+// 校验密码是否符合标准的方法
 const checkPassword = async (rule, value, callback) => {
   let reg = /^(\w){6,20}$/;
   if (!reg.test(value)) {
@@ -126,17 +136,21 @@ const checkPassword = async (rule, value, callback) => {
     callback()
   }
 }
-
+// 第一个步骤的表单refs
 const baseForm = ref();
+// 第二个步骤的表单refs
 const detailedForm = ref();
+// 第三个步骤的表单refs
 const sysForm = ref();
 
 const data = reactive({
+  // 流程控制
   steps: [
     {title: '填写基本信息', value: 1},
     {title: '填写详细信息', value: 2},
     {title: '设置用户名和密码', value: 3},
   ],
+  // 性别选项
   options: [
     {
       value: '男',
@@ -147,8 +161,11 @@ const data = reactive({
       label: '女',
     }
   ],
+  // 当前步骤
   current: 1,
+  // 弹窗显示控制
   visible: false,
+  // 表单校验规则
   rules: {
     realName: [{required: true, message: '请输入学生姓名', trigger: 'blur'}],
     avatar: [],
@@ -161,23 +178,23 @@ const data = reactive({
     password: [{required: true, message: '请输入密码', trigger: 'blur'},
       {validator: checkPassword, trigger: 'blur'}]
   },
-  imageUrl: '',
-  selectedOptions: [],
-  avatarFile:{},
-  addressOptions:regionData,
-  submitLoad:false
+  imageUrl: '', // 头像url
+  selectedOptions: [], // 地址已选项
+  avatarFile:{}, // 头像file文件
+  addressOptions:regionData, // 插件文件
+  submitLoad:false //点击提交加载动画控制
 })
 
 const user = reactive({
-  username: '',
-  password: '',
-  realName: '',
-  phone: '',
-  avatar: '',
-  gender: '男',
-  address: '[]',
-  status: 1,
-  email: ''
+  username: '', // 用户名
+  password: '', // 密码
+  realName: '', // 真实姓名
+  phone: '', // 电话号码
+  avatar: '', // 头像
+  gender: '男', // 性别
+  address: '[]', // 地址
+  status: 1, // 状态
+  email: '' // 电子邮件
 })
 
 /**
@@ -188,6 +205,7 @@ const user = reactive({
 /**
  * 事件
  */
+// 初始化弹窗
 const getData = () => {
   return{
     steps: [
@@ -226,34 +244,40 @@ const getData = () => {
     submitLoad:false
   }
 }
+// 初始化表单信息
 const getUser = () => {
   return{
-    username: '',
-    password: '',
-    realName: '',
-    phone: '',
-    avatar: '',
-    gender: '男',
-    address: [],
-    status: 1,
-    email: ''
+    username: '', // 用户名
+    password: '', // 密码
+    realName: '', // 真实姓名
+    phone: '', // 电话号码
+    avatar: '', // 头像
+    gender: '男', // 性别
+    address: '[]', // 地址
+    status: 1, // 状态
+    email: '' // 电子邮件
   }
 }
+// 打开弹窗触发
 const openDia = () => {
   Object.assign(user,getUser());
   Object.assign(data,getData());
 }
+// 关闭弹窗触发
 const handleClose = () => {
 
   emit('update:visible', false);
 }
+// 点击确定新增触发
 const confirmDia = () => {
+  // 先校验
   sysForm.value.validate(async(res) => {
     if (res) {
       data.submitLoad = true;
       if(data.avatarFile.type){
         let param = new FormData();
         param.append('avatar', data.avatarFile);
+        // 首先上传头像，获取到上传到服务器后的url
         let res = await post('/user/avatar/add',param)
         if(res.status === 1000){
           user.avatar = res.data;
@@ -261,6 +285,7 @@ const confirmDia = () => {
           return;
         }
       }
+      // 地址序列化转换
       if(data.selectedOptions.length === 3){
         user.address = JSON.stringify(data.selectedOptions);
       }else{
@@ -278,7 +303,9 @@ const confirmDia = () => {
   })
 }
 
+// 点击下一步触发
 const nextStep = () => {
+  // 首先触发表单校验，校验通过则进入下一步
   if (data.current === 1) {
     baseForm.value.validate(res => {
       if (res) {

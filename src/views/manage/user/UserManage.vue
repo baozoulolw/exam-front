@@ -1,5 +1,6 @@
 <template>
   <div class="main">
+    <!--搜索栏-->
     <div class="search">
       <el-input v-model="data.params.param.keyword" placeholder="输入关键字" class="margin-r wit-3"></el-input>
       <el-select v-model="data.params.param.gradeId" class="margin-r wit-3"></el-select>
@@ -7,11 +8,12 @@
       <el-button @click="toSearch" :loading="data.searchLoad">搜索</el-button>
       <el-button @click="addUser">添加人员</el-button>
     </div>
+    <!--用户表格-->
     <el-table :data="data.tableData" border style="width: 100%" v-loading="data.tableLoad">
-    <el-table-column label="所在班级">
+      <el-table-column label="所在班级">
         <template #default="scope">
           <span
-            :title="scope.row.classExam ? scope.row.classExam.className : '--'"
+              :title="scope.row.classExam ? scope.row.classExam.className : '--'"
           >{{ scope.row.classExam ? scope.row.classExam.className : '--' }}</span>
         </template>
       </el-table-column>
@@ -40,45 +42,49 @@
         </template>
       </el-table-column>
     </el-table>
+    <!--分页控制-->
     <div class="pagination">
       <el-pagination
-        :pager-count="5"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :page-sizes="[1, 4, 8, 10]"
-        background
-        layout="total, prev, pager, next, sizes, jumper"
-        :total="data.total"
+          :pager-count="5"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :page-sizes="[1, 4, 8, 10]"
+          background
+          layout="total, prev, pager, next, sizes, jumper"
+          :total="data.total"
       ></el-pagination>
     </div>
+    <!--新增用户弹窗-->
     <user-info v-model:visible="data.visible" @close="closeDia"></user-info>
   </div>
 </template>
 
 <script setup>
-import { ElMessage, ElSelect } from 'element-plus';
-import { reactive, onMounted } from 'vue'
-import { post } from '../../../http/request'
+import {ElMessage, ElSelect} from 'element-plus';
+import {reactive, onMounted} from 'vue'
+import {post} from '../../../http/request'
 import UserInfo from "./UserInfo.vue";
 import {getAddressStringByCode} from '../../../utils/utils';
 
 const data = reactive({
+  // 用户查询参数
   params: {
     pageNumber: 1,
     pageSize: 10,
     param: {
-      keyword: '',
-      classId: '',
-      gradeId: ''
+      keyword: '', // 关键字
+      classId: '', // 班级id（暂未实现）
+      gradeId: ''  // 分组id（暂未实现）
     }
   },
-  total: 0,
-  tableData: [],
-  visible: false,
-  editFormData: {},
-  searchLoad: false,
-  tableLoad: false,
+  total: 0, // 总人数
+  tableData: [], // 表格数据
+  visible: false,  // 新增用户弹窗控制
+  searchLoad: false, // 搜索用户加载动画控制
+  tableLoad: false,  // 表格加载动画控制
 })
+
+// 获取用户列表表格数据
 const getUserList = async () => {
   data.tableLoad = true;
   let res = await post('/user/userList', data.params);
@@ -90,28 +96,33 @@ const getUserList = async () => {
   }
   data.tableLoad = false;
 }
+
+// 点击搜索触发
 const toSearch = () => {
   data.params.pageNumber = 1;
   data.searchLoad = true;
   getUserList().then(() => data.searchLoad = false);
 }
 
+// 当前页更改触发
 const handleCurrentChange = val => {
   data.params.pageNumber = val;
   getUserList();
 }
+
+// 每页数量更改触发
 const handleSizeChange = val => {
   data.params.pageSize = val;
   data.params.pageNumber = 1;
   getUserList();
 }
 
+// 点击新增用户触发 ，打开弹窗
 const addUser = () => {
   data.visible = true;
 }
 
 const edit = row => {
-  data.editFormData = JSON.parse(JSON.stringify(row));
   data.type = 'edit';
   data.visible = true;
 }
@@ -120,6 +131,7 @@ const bindRole = row => {
 
 }
 
+// 关闭新增用户弹窗
 const closeDia = () => {
   data.visible = false;
   toSearch();
@@ -134,13 +146,15 @@ onMounted(() => {
   height: calc(100vh - 100px);
   padding: 20px;
   position: relative;
+
   .search {
     display: flex;
     margin-bottom: 30px;
   }
+
   .pagination {
     position: absolute;
-    bottom:20px;
+    bottom: 20px;
     right: 20px;
   }
 }

@@ -1,5 +1,6 @@
 <template>
   <div style="height: 100vh;">
+    <!--菜单树-->
     <el-menu
       active-text-color="#ffd04b"
       background-color="#545c64"
@@ -16,6 +17,7 @@
         <el-image style="width: 30px; height: 30px;" :src="logo" fit="fill"></el-image>
         <span v-show='!proData.menuCollapse' style="margin-left:10px">Online-Exam</span>
       </div>
+      <!--将资源树进行遍历展示-->
       <template v-for="item in data.treeData">
         <template v-if="item.children.length > 0">
           <el-sub-menu  :index="item.id">
@@ -53,6 +55,7 @@ import {ElMessage} from "element-plus";
 import {getUser} from "../../utils/utils";
 import Cookies from 'js-cookie'
 const data = reactive({
+  //资源树
   treeData:[]
 })
 const userInfo = getUser();
@@ -65,8 +68,8 @@ const handleClose = (key, keyPath) => {
   //console.log(key, keyPath)
 }
 
+//获取当前登录用户登录平台的资源树
 const getAllResource = async () => {
-  //let res = await get('/resource/getAll');
   let res = await get(`/resource/${userInfo.id}?platform=${Cookies.get('platform')}`);
   if (res.status === 1000) {
     data.treeData = res.data;
