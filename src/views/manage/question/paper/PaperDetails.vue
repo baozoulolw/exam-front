@@ -229,6 +229,7 @@ const data = reactive({
     {value: 1, label: '多选题', questions: [], trans: true},
     {value: 2, label: '判断题', questions: [], trans: true},
     {value: 3, label: '填空题', questions: [], trans: true},
+    {value: 4, label: '简答题', questions: [], trans: true},
   ],
   totalScore: 0,
   questionShow: false,

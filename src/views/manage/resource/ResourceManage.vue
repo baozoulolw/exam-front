@@ -121,7 +121,7 @@ const scrollbar = ref(null);
 const form = ref(null)
 const tree = ref(null)
 const data = reactive({
-  platform:'student',
+  platform:'teacher',
   treeLoad: false,
   keyword: '',
   treeData: [],
@@ -130,7 +130,7 @@ const data = reactive({
     children: 'children',
   },
   platforms: [
-    {label: '学生平台', value: 'student'},
+    //{label: '学生平台', value: 'student'},
     {label: '管理平台', value: 'manage'},
     {label: '教师平台', value: 'teacher'},
   ],
@@ -143,8 +143,9 @@ const data = reactive({
     icon: '',
     type: '',
     note: '',
-    platform:'student',
-    resourceName: ''
+    platform:'teacher',
+    resourceName: '',
+    weights:0
   },
   resourceTypes: [
     {value: 'menu', label: '菜单'}
@@ -260,8 +261,8 @@ const delResource = () => {
   })
 }
 const editResource = () => {
-  let {id, isRoot, path, icon, type, resourceName, note} = data.showResource;
-  data.resource = {id, isRoot, path, icon, type, resourceName, note};
+  let {id, isRoot, path, icon, type, resourceName, note,weights} = data.showResource;
+  data.resource = {id, isRoot, path, icon, type, resourceName, note,weights};
   data.addShow = true;
 }
 

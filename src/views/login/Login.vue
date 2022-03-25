@@ -12,7 +12,6 @@
         </el-form-item>
         <el-form-item>
           <el-radio-group v-model="data.radio" style="display:flex">
-            <el-radio label="student">我是学生</el-radio>
             <el-radio label="teacher">我是老师</el-radio>
             <el-radio label="manage">我是管理员</el-radio>
           </el-radio-group>
@@ -43,7 +42,7 @@ const data = reactive({
     password: ''
   },
   //登录平台
-  radio: 'student',
+  radio: 'teacher',
   //登录按钮加载控制
   butLoad: false
 })

@@ -18,7 +18,7 @@
         </section>
         <section v-for="item in showGroup" :key="item.id" :class="['ml','item',{'selected':data.selectedGroup.id === item.id}]"
                  @click="selectedGroup(item)">
-          <span class="name">{{ `${item.groupName} (${item.questionNumber})` }}</span>
+          <span class="name" :title="item.groupName">{{ `${item.groupName}` }}</span><span style="margin-right: 3px">({{(item.questionNumber)}})</span>
           <el-dropdown @command="handleCommand">
             <el-icon>
               <i-more-filled/>
@@ -218,13 +218,14 @@ const data = reactive({
     {value: 1, label: '多选题'},
     {value: 2, label: '判断题'},
     {value: 3, label: '填空题'},
+    {value: 3, label: '简答题'},
   ],
   qHards: [
     {value: 0, label: '简单'},
     {value: 1, label: '中等'},
     {value: 2, label: '困难'},
   ],
-  types: ['单选题', '多选题', '判断题', '填空题'],
+  types: ['单选题', '多选题', '判断题', '填空题','简答题'],
   hards: ['简单', '中等', '困难'],
   total: 0,
   tableData: [],
@@ -431,6 +432,7 @@ const closeTransDia = () => {
 
 const closeChangeGroupDia = () => {
   data.changeGroupVisible = false;
+  data.diaLoad = false;
 }
 
 const confirmTransDia = () => {
@@ -456,7 +458,7 @@ const confirmChangeGroupDia = () => {
     if(checkRes){
       data.diaLoad = true;
       let res = await post(`/question/edit`,{id:data.changeGroupId,groupId:data.changeGroup.id})
-      data.diaLoad = true;
+      data.diaLoad = false;
       if(res.status === 1000){
         ElMessage.success('更改分类成功');
         closeChangeGroupDia();
@@ -531,6 +533,11 @@ onMounted(() => {
 
         .name {
           margin-right: auto;
+          display: inline-block;
+          max-width: 130px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
       }
 

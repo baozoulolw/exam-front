@@ -16,11 +16,17 @@
                 </el-form-item>
               </div>
               <div class="right">
-                <el-form-item label="学生姓名" prop="realName">
+                <el-form-item label="姓名" prop="realName">
                   <el-input v-model="user.realName"></el-input>
                 </el-form-item>
                 <el-form-item label="性别" prop="gender">
                   <t-radio-group v-model="user.gender" name="city" :options="data.options"></t-radio-group>
+                </el-form-item>
+                <el-form-item label="角色" prop="roleIds">
+                  <el-select v-model="user.roleIds">
+                    <el-option v-for="item in data.roles" :label="item.label" :key="item.id" :value="item.id">
+                    </el-option>
+                  </el-select>
                 </el-form-item>
               </div>
             </div>
@@ -161,13 +167,18 @@ const data = reactive({
       label: '女',
     }
   ],
+  roles:[
+    {label:'辅导员',id:'1'},
+    {label:'老师',id:'2'},
+    {label:'学生',id:'3'}
+  ],
   // 当前步骤
   current: 1,
   // 弹窗显示控制
   visible: false,
   // 表单校验规则
   rules: {
-    realName: [{required: true, message: '请输入学生姓名', trigger: 'blur'}],
+    realName: [{required: true, message: '请输入姓名', trigger: 'blur'}],
     avatar: [],
     phone: [{validator: checkPhone, trigger: 'blur'}],
     email: [{validator: checkEmail, trigger: 'blur'}],
@@ -194,7 +205,8 @@ const user = reactive({
   gender: '男', // 性别
   address: '[]', // 地址
   status: 1, // 状态
-  email: '' // 电子邮件
+  email: '', // 电子邮件
+  roleIds:'',
 })
 
 /**
@@ -227,6 +239,7 @@ const getData = () => {
     visible: true,
     rules: {
       realName: [{required: true, message: '请输入学生姓名', trigger: 'blur'}],
+      roleIds: [{required: true, message: '请选择基础角色', trigger: 'change'}],
       avatar: [],
       phone: [{validator: checkPhone, trigger: 'blur'}],
       email: [{validator: checkEmail, trigger: 'blur'}],
@@ -255,7 +268,8 @@ const getUser = () => {
     gender: '男', // 性别
     address: '[]', // 地址
     status: 1, // 状态
-    email: '' // 电子邮件
+    email: '', // 电子邮件
+    roleIds:''
   }
 }
 // 打开弹窗触发
@@ -291,6 +305,9 @@ const confirmDia = () => {
       }else{
         user.address = '[]';
       }
+      let ar = []
+      ar.push(user.roleIds);
+      user.roleIds = ar;
       let res = await post('/user/add', user)
       data.submitLoad = false;
       if(res.status === 1000){

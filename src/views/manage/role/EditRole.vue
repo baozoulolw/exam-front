@@ -4,7 +4,7 @@
       <el-form-item label="角色名称" prop="roleName">
         <el-input v-model="data.formData.roleName" size="mini"></el-input>
       </el-form-item>
-      <el-form-item label="是否默认">
+      <el-form-item label="是否默认" v-if="false">
         <el-switch
           v-model="data.formData.isDefault"
           inline-prompt

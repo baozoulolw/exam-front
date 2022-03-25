@@ -13,7 +13,7 @@
       <el-table-column label="是否为默认角色" width="150">
         <template #default="scope">
           <div style="text-align: center;">
-            <el-tag type="success">{{ scope.row.isDefault === '0' ? '否' : '是' }}</el-tag>
+            <el-tag type="success">{{ !data.baseIds.includes(scope.row.id) ? '否' : '是' }}</el-tag>
           </div>
         </template>
       </el-table-column>
@@ -29,12 +29,12 @@
       <el-table-column label="最后操作人" prop="changeUserName"></el-table-column>
       <el-table-column label="操作" width="200">
         <template #default="scope">
-          <div class="table-operate">
+          <div class="table-operate" v-if="!data.baseIds.includes(scope.row.id)">
             <span @click="edit(scope.row)" class="item-span">编辑</span>
             <el-divider direction="vertical"></el-divider>
             <span @click="editResource(scope.row)" class="item-span">配置资源</span>
             <el-divider direction="vertical"></el-divider>
-            <span class="item-span">删除</span>
+            <span class="item-span" @click="delRole(scope.row)">删除</span>
           </div>
         </template>
       </el-table-column>
@@ -66,11 +66,13 @@
 </template>
 
 <script setup>
-import { ElMessage } from 'element-plus';
+import {ElMessage, ElMessageBox} from 'element-plus';
 import {reactive, onMounted, ref} from 'vue'
-import { post } from '../../../http/request'
+import {get, post} from '../../../http/request'
 import EditRole from './EditRole.vue';
 import ResourceEdit from "./ResourceEdit.vue";
+import Cookies from "js-cookie";
+import $store from "../../../store";
 
 const data = reactive({
   params: {
@@ -89,7 +91,8 @@ const data = reactive({
   type: 'add',
   searchLoad: false,
   tableLoad: false,
-  resourceId:''
+  resourceId:'',
+  baseIds:['1','2','3']
 })
 const getRoleList = async () => {
   data.tableLoad = true;
@@ -113,6 +116,26 @@ const handleCurrentChange = val => {
   data.params.pageNumber = val;
   getRoleList();
 }
+
+const delRole = (row) => {
+  ElMessageBox.confirm(
+      '此操作会将与此角色绑定的人员的一切资源清除',
+      '危险操作',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+  )
+      .then(async() => {
+        let res = await get('/role/del/'+row.id);
+        if(res.status === 1000){
+          ElMessage.success('删除成功');
+          getRoleList();
+        }
+      })
+}
+
 const handleSizeChange = val => {
   data.params.pageSize = val;
   data.params.pageNumber = 1;

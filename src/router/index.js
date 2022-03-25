@@ -61,6 +61,36 @@ const routes = [
         ]
       },
       {
+        path:'/exam',
+        meta:{
+          title:'考试'
+        },
+        component: () => import('../views/manage/exam/Exam.vue'),
+        children:[
+          {
+            path:'/exam_arrange',
+            meta:{
+              title:'考试编排'
+            },
+            component:() => import('../views/manage/exam/ExamArrange.vue')
+          },
+          {
+            path:'/score',
+            meta:{
+              title:'考试成绩'
+            },
+            component:() => import('../views/manage/score/Score.vue')
+          },
+          {
+            path:'/marking',
+            meta:{
+              title:'阅卷'
+            },
+            component:() => import('../views/manage/marking/Marking.vue')
+          }
+        ]
+      },
+      {
         path:'/question',
         meta:{
           title:'题库'

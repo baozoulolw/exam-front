@@ -92,7 +92,7 @@ instance.interceptors.response.use((response) => {
 }
 
 /**
- * 封装get方法
+ * 封装post方法
  * @param url
  * @param data
  * @returns {Promise}

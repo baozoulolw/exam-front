@@ -106,6 +106,19 @@
           <el-button :icon="Minus" @click="delFill(index)" type="danger" plain></el-button>
         </section>
       </div>
+      <!-- 简单题 -->
+      <div class="content" v-if="data.question.type === 4">
+        <section v-for="(item,index) in data.fillAnswer" :key="index" class="option">
+          <div class="label">答案</div>
+          <el-input
+              v-model="item.value"
+              :rows="20"
+              type="textarea"
+              placeholder="请填写填空答案"
+              style="margin-right:10px"
+          ></el-input>
+        </section>
+      </div>
     </div>
   </div>
 </template>
@@ -141,6 +154,7 @@ const data = reactive({
     {value: 1, label: '多选题'},
     {value: 2, label: '判断题'},
     {value: 3, label: '填空题'},
+    {value: 4, label: '简答题'},
   ],
   hards: [
     {value: 0, label: '简单'},
@@ -176,7 +190,6 @@ const addQuestion = async () => {
   data.saveLoad = false;
   if (res.status === 1000) {
     ElMessage.success('保存成功');
-    backList();
   } else {
     ElMessage.error(res.desc);
   }
@@ -192,7 +205,6 @@ const editQuestion = async () => {
   data.saveLoad = false;
   if (res.status === 1000) {
     ElMessage.success('保存成功');
-    backList();
   } else {
     ElMessage.error(res.desc);
   }
@@ -224,7 +236,7 @@ const changeType = val => {
   if (val === 2) {
     data.judgeAnswer = "1";
   }
-  if (val === 3) {
+  if (val === 3 || val === 4) {
     data.fillAnswer = [{value: ''}];
   }
 }
@@ -234,8 +246,8 @@ const addFill = index => {
 }
 
 const delFill = index => {
-  if (data.options.length === 1) {
-    ElMessage.warning('填空数量不得小于1');
+  if (data.fillAnswer.length === 1) {
+    ElMessage.warning('答题数不得小于1');
     return;
   }
   data.fillAnswer.splice(index, 1);
@@ -250,7 +262,6 @@ const addOption = index => {
     console.log(index);
     data.options.splice(index, 0, {option: 0, value: ''});
   } else {
-    console.log('1231231');
     data.options.push({option: 0, value: ''})
   }
   computeOptions();
@@ -297,7 +308,7 @@ const init = () => {
   if (data.question.type === 2) {
     data.judgeAnswer = data.question.answer;
   }
-  if (data.question.type === 3) {
+  if (data.question.type === 3 || data.question.type === 4) {
     data.fillAnswer = JSON.parse(data.question.answer);
   }
 }

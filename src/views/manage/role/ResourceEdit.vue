@@ -37,7 +37,7 @@ const props = defineProps({
 const emit = defineEmits(['update:visible'])
 const data = reactive({
   treeLoad: false,
-  platform: 'student',
+  platform: 'teacher',
   keyword: '',
   treeData: [],
   selectKeys: [],
@@ -47,7 +47,7 @@ const data = reactive({
   },
   oldKeys: [],
   platforms: [
-    {label: '学生平台', value: 'student'},
+    //{label: '学生平台', value: 'student'},
     {label: '管理平台', value: 'manage'},
     {label: '教师平台', value: 'teacher'},
   ],

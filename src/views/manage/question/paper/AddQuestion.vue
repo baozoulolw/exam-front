@@ -70,13 +70,14 @@ const data = reactive({
   },
   groupList:[],
   selectedRowKeys: [],
-  qShowTypes: ['单选题', '多选题', '判断题', '填空题'],
+  qShowTypes: ['单选题', '多选题', '判断题', '填空题','简答题'],
   hards: ['简单', '中等', '困难'],
   qTypes: [
     {value: 0, label: '单选题'},
     {value: 1, label: '多选题'},
     {value: 2, label: '判断题'},
     {value: 3, label: '填空题'},
+    {value: 4, label: '简答题'},
   ],
   qHards: [
     {value: 0, label: '简单'},
