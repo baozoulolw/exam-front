@@ -109,6 +109,7 @@
                   <el-dropdown-item :icon="Avatar" :command="{type:'info',param:item}">查看信息</el-dropdown-item>
                   <el-dropdown-item :icon="Delete" :command="{type:'del',param:item}">删除</el-dropdown-item>
                   <el-dropdown-item :icon="Paperclip" :command="{type:'role',param:item}">绑定角色</el-dropdown-item>
+                  <el-dropdown-item :icon="Switch" :command="{type:'trans',param:item}">转移分类</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -265,7 +266,7 @@ import UserInfo from "./UserInfo.vue";
 import {AddIcon, EllipsisIcon} from 'tdesign-icons-vue-next';
 import {getAddressStringByCode, getObjByType, getUser} from '../../../utils/utils';
 import {
-  Filter, Delete, Avatar, MoreFilled, Paperclip
+  Filter, Delete, Avatar, MoreFilled, Paperclip,Switch
 } from '@element-plus/icons'
 import {MessagePlugin} from "tdesign-vue-next";
 
@@ -425,7 +426,6 @@ const bindRoleChange = async(val) => {
 }
 
 const changeGroup = item => {
-  console.log(item);
   data.transFromGroup = getObjByType(data.groupList, 'id', item.groupId)
   data.changeGroupId = item.id;
   data.changeGroupVisible = true;
@@ -456,8 +456,15 @@ const handleItemCommand = ({type, param}) => {
     infoItem(param);
   } else if (type === 'role') {
     bindRole(param);
+  }else if (type === 'trans') {
+    changeGroup(param);
   }
 }
+
+const transUser = (param) => {
+
+}
+
 const delItem = (param) => {
   ElMessageBox.confirm(
       '删除后不可恢复，是否继续?',
