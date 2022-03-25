@@ -149,7 +149,7 @@
       </div>
     </div>
     <!--新增用户弹窗-->
-    <user-info v-model:visible="data.visible" @close="closeDia"></user-info>
+    <user-info v-model:visible="data.visible" @close="closeDia" :groupList="data.groupList"></user-info>
     <!--  分类转移-->
     <el-dialog v-model="data.transGroupVisible" title="转移分类" width="400px" :before-close="closeTransDia">
       <div style="padding-left: 20px">{{ `当前分类:  ${data.transFromGroup.groupName}` }}</div>

@@ -14,6 +14,12 @@
                 <el-form-item>
                   <avatar-upload v-model:file="data.avatarFile"></avatar-upload>
                 </el-form-item>
+                <el-form-item label="分组" prop="groupId">
+                  <el-select v-model="user.groupId" filterable>
+                    <el-option v-for="item in props.groupList" :label="item.groupName" :key="item.id" :value="item.id">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
               </div>
               <div class="right">
                 <el-form-item label="姓名" prop="realName">
@@ -89,7 +95,8 @@ import {regionData, CodeToText} from 'element-china-area-data'
 import {get, post} from "../../../http/request";
 
 const props = defineProps({
-  visible: Boolean // 弹窗显示控制
+  visible: Boolean, // 弹窗显示控制
+  groupList: Array
 })
 const i = getCurrentInstance();
 const emit = defineEmits(['update:visible','close'])
@@ -207,6 +214,7 @@ const user = reactive({
   status: 1, // 状态
   email: '', // 电子邮件
   roleIds:'',
+  groupId:''
 })
 
 /**
@@ -240,6 +248,7 @@ const getData = () => {
     rules: {
       realName: [{required: true, message: '请输入学生姓名', trigger: 'blur'}],
       roleIds: [{required: true, message: '请选择基础角色', trigger: 'change'}],
+      groupId: [{required: true, message: '请选择基础角色', trigger: 'change'}],
       avatar: [],
       phone: [{validator: checkPhone, trigger: 'blur'}],
       email: [{validator: checkEmail, trigger: 'blur'}],
