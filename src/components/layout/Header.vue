@@ -276,9 +276,6 @@ const openEditAvatar = () => {
   data.avatarVisible = true;
 }
 const confirmAvatar = async() => {
-  console.log(data.avatarFile)
-  console.log(typeof data.avatarFile)
-  console.log(JSON.stringify(data.avatarFile))
   /*if(JSON.stringify(data.avatarFile) === '{}'){
     ElMessage.warning('请选择图片');
     return;

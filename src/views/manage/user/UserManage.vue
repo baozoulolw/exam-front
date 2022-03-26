@@ -46,8 +46,6 @@
       <!--搜索栏-->
       <div class="search">
         <el-input v-model="data.params.param.keyword" placeholder="输入关键字" class="margin-r wit-3"></el-input>
-        <el-select v-model="data.params.param.gradeId" class="margin-r wit-3"></el-select>
-        <el-select v-model="data.params.param.classId" class="margin-r wit-3"></el-select>
         <el-button @click="toSearch" :loading="data.searchLoad">搜索</el-button>
         <el-button @click="addUser">添加人员</el-button>
       </div>
