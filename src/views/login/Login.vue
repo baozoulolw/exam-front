@@ -2,7 +2,7 @@
   <div class="login-body">
    <!-- 登录表单-->
     <div class="form">
-      <div class="title">在线考试系统</div>
+      <div class="title">随堂测试系统</div>
       <el-form :model="data.loginParam" style="width: 100%;">
         <el-form-item prop="username">
           <el-input type="text" v-model="data.loginParam.username"></el-input>
