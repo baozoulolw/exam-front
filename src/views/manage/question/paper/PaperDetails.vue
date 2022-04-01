@@ -29,7 +29,7 @@
         <span class="score">总分:</span>
         <el-tag class="mr-20" effect="plain" type="danger">{{ totalScore }}</el-tag>
         <span class="size mr-20">{{ `试题数量: ${data.types.reduce((p, i) => p + i.questions.length, 0)}` }}</span>
-        <t-button variant="outline" @click="addQuestion">
+        <t-button variant="outline" @click="addQuestion" v-if="checkHasRole(roleKeys.add)">
           <template #icon>
             <add-icon></add-icon>
           </template>
@@ -45,13 +45,13 @@
             <span style="margin-right: 40px">{{ item.label }}</span>
             <span style="margin-right: 40px">{{ `题目数: ${item.questions.length}` }}</span>
             <span style="margin-right: auto">{{ `分值: ${item.questions.reduce((p, i) => p + i.score, 0)}` }}</span>
-            <t-button theme="primary" variant="outline" @click.stop="dragQuestion(item)" style="margin-right: 12px">
+            <t-button theme="primary" variant="outline" @click.stop="dragQuestion(item)" style="margin-right: 12px" v-if="checkHasRole(roleKeys.rank)">
               <template #icon>
                 <swap-icon/>
               </template>
               编辑顺序
             </t-button>
-            <t-button theme="primary" variant="outline" @click.stop="clean(item)">
+            <t-button theme="primary" variant="outline" @click.stop="clean(item)" v-if="checkHasRole(roleKeys.clean)">
               <template #icon>
                 <delete-icon/>
               </template>
@@ -78,8 +78,8 @@
                   <template #default="scope">
                     <div class="table-operate">
                       <span class="item-span" @click="questionDetail(scope.row)">预览</span>
-                      <el-divider direction="vertical"></el-divider>
-                      <span class="item-span" @click="openScore(scope.row)">调整分值</span>
+                      <el-divider direction="vertical" v-if="checkHasRole(roleKeys.score)"></el-divider>
+                      <span class="item-span" @click="openScore(scope.row)" v-if="checkHasRole(roleKeys.score)">调整分值</span>
                     </div>
                   </template>
                 </el-table-column>
@@ -195,6 +195,7 @@ import Empty from "../../../../components/common/empty/Empty.vue";
 import {SwapIcon, AddIcon, DeleteIcon} from 'tdesign-icons-vue-next';
 import PaperQuestion from "./PaperQuestion.vue";
 import DragPaper from "./DragPaper.vue";
+import {checkHasRole} from "../../../../utils/utils";
 
 const router = useRouter(); //路由
 
@@ -236,6 +237,25 @@ const data = reactive({
   options: [],
   questionInfo: ''
 })
+const roleKeys = reactive({
+  add: {
+    teacher: 'sjtjst-t',
+    manage: 'sjtjst-m'
+  },
+  rank:{
+    teacher: 'bjstsx-t',
+    manage: 'bjstsx-m'
+  },
+  clean:{
+    teacher: 'qkst-t',
+    manage: 'qkst-m'
+  },
+  score:{
+    teacher: 'tzfz-t',
+    manage: 'tzfz-m'
+  }
+})
+
 const totalScore = computed(() => data.types.reduce((p, i) => p + i.questions.reduce((p1, i1) => p1 + i1.score, 0), 0))
 /**
  * 网络请求

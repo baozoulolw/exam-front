@@ -4,7 +4,7 @@
     <div class="search">
       <el-input v-model="data.params.param.roleName" placeholder="输入角色名" class="margin-r wit-3"></el-input>
       <el-button @click="toSearch" :loading="data.searchLoad">搜索</el-button>
-      <el-button @click="addRole">添加角色</el-button>
+      <el-button @click="addRole" v-if="checkHasRole(roleKeys.addRole)">添加角色</el-button>
     </div>
     <!--    角色表格区域-->
     <el-table :data="data.tableData" border style="width: 100%" v-loading="data.tableLoad">
@@ -29,12 +29,12 @@
       <el-table-column label="最后操作人" prop="changeUserName"></el-table-column>
       <el-table-column label="操作" width="200">
         <template #default="scope">
-          <div class="table-operate" v-if="!data.baseIds.includes(scope.row.id)">
-            <span @click="edit(scope.row)" class="item-span">编辑</span>
-            <el-divider direction="vertical"></el-divider>
-            <span @click="editResource(scope.row)" class="item-span">配置资源</span>
-            <el-divider direction="vertical"></el-divider>
-            <span class="item-span" @click="delRole(scope.row)">删除</span>
+          <div class="table-operate">
+            <span @click="edit(scope.row)" class="item-span" v-if="checkHasRole(roleKeys.editRole)">编辑</span>
+            <el-divider direction="vertical" v-if="checkHasRole(roleKeys.editRole)"></el-divider>
+            <span @click="editResource(scope.row)" class="item-span" v-if="checkHasRole(roleKeys.resource)">配置资源</span>
+            <el-divider direction="vertical" v-if="checkHasRole(roleKeys.resource) && checkHasRole(roleKeys.delRole)"></el-divider>
+            <span class="item-span" @click="delRole(scope.row)" v-if="checkHasRole(roleKeys.delRole)">删除</span>
           </div>
         </template>
       </el-table-column>
@@ -73,6 +73,7 @@ import EditRole from './EditRole.vue';
 import ResourceEdit from "./ResourceEdit.vue";
 import Cookies from "js-cookie";
 import $store from "../../../store";
+import {checkHasRole} from "../../../utils/utils";
 
 const data = reactive({
   params: {
@@ -94,6 +95,25 @@ const data = reactive({
   resourceId:'',
   baseIds:['1','2','3']
 })
+const roleKeys = reactive({
+  addRole: {
+    teacher: 'tjjs-t',
+    manage: 'tjjs-m'
+  },
+  editRole: {
+    teacher: 'bjjs-t',
+    manage: 'bjjs-m'
+  },
+  resource: {
+    teacher: 'pzzy-t',
+    manage: 'pzzy-m'
+  },
+  delRole: {
+    teacher: 'scjj-t',
+    manage: 'scjj-m'
+  },
+})
+
 const getRoleList = async () => {
   data.tableLoad = true;
   let res = await post('/role/roleList', data.params);

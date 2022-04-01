@@ -6,8 +6,10 @@
       </el-select>
       <el-input v-model="data.keyword" placeholder="输入关键词过滤" clearable></el-input>
     </div>
+    <el-scrollbar style="height: 300px">
     <div class="tree">
       <el-tree
+          check-strictly
           v-loading="data.treeLoad"
           ref="tree"
           :props="data.props"
@@ -20,6 +22,7 @@
           @check="check"
       />
     </div>
+    </el-scrollbar>
   </div>
 </template>
 

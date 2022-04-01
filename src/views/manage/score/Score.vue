@@ -49,7 +49,7 @@
       <el-table-column label="操作" width="120">
         <template #default="scope">
           <div class="table-operate">
-            <span @click="showAnswer(scope.row)" class="item-span" v-if="scope.row.marking === 0">查看答卷</span>
+            <span @click="showAnswer(scope.row)" class="item-span" v-if="scope.row.marking === 0 && checkHasRole(roleKeys.see)">查看答卷</span>
 <!--            <el-divider direction="vertical" v-if="data.params.param.condition === 0"></el-divider>
             <span @click='delQuestion(scope.row)' class="item-span" v-if="data.params.param.condition === 0">删除</span>-->
           </div>
@@ -209,6 +209,7 @@
 import {reactive, onMounted, computed} from 'vue'
 import {get, post} from "../../../http/request";
 import {ElMessage} from "element-plus";
+import {checkHasRole} from "../../../utils/utils";
 
 const props = defineProps({})
 
@@ -235,6 +236,12 @@ const data = reactive({
   visible:false,
   searchLoad:false,
   showIndex:0
+})
+const roleKeys = reactive({
+  see: {
+    teacher: 'ckdj-t',
+    manage: 'ckdj-m'
+  },
 })
 
 /**

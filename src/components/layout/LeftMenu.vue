@@ -18,7 +18,7 @@
         <span v-show='!proData.menuCollapse' style="margin-left:10px">Online-Exam</span>
       </div>
       <!--将资源树进行遍历展示-->
-      <template v-for="item in data.treeData">
+      <template v-for="item in data.treeData.filter(({type}) => type === 'menu')">
         <template v-if="item.children.length > 0">
           <el-sub-menu  :index="item.id">
             <template #title>
@@ -27,7 +27,7 @@
               </el-icon>
               <span>{{item.resourceName}}</span>
             </template>
-            <el-menu-item  v-for="itemC in item.children" :index="itemC.path" :key="itemC.id">{{itemC.resourceName}}</el-menu-item>
+            <el-menu-item  v-for="itemC in item.children.filter(({type}) => type === 'menu')" :index="itemC.path" :key="itemC.id">{{itemC.resourceName}}</el-menu-item>
           </el-sub-menu>
         </template>
         <template v-else>
@@ -54,6 +54,7 @@ import {get} from "../../http/request";
 import {ElMessage} from "element-plus";
 import {getUser} from "../../utils/utils";
 import Cookies from 'js-cookie'
+import $store from '../../store/index'
 const data = reactive({
   //资源树
   treeData:[]
@@ -73,6 +74,8 @@ const getAllResource = async () => {
   let res = await get(`/resource/${userInfo.id}?platform=${Cookies.get('platform')}`);
   if (res.status === 1000) {
     data.treeData = res.data;
+    await $store.dispatch('setRoleTree', res.data);
+    console.log($store.state.roleTree)
   } else {
     ElMessage.error(res.desc);
   }

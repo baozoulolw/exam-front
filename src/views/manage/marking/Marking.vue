@@ -49,7 +49,7 @@
       <el-table-column label="操作" width="120">
         <template #default="scope">
           <div class="table-operate">
-            <span @click="showAnswer(scope.row)" class="item-span">阅卷</span>
+            <span @click="showAnswer(scope.row)" class="item-span" v-if="checkHasRole(roleKeys.mark)">阅卷</span>
             <!--            <el-divider direction="vertical" v-if="data.params.param.condition === 0"></el-divider>
                         <span @click='delQuestion(scope.row)' class="item-span" v-if="data.params.param.condition === 0">删除</span>-->
           </div>
@@ -102,7 +102,7 @@
 import {reactive, onMounted, computed} from 'vue'
 import {get, post} from "../../../http/request";
 import {ElMessage} from "element-plus";
-import {getUser} from "../../../utils/utils";
+import {checkHasRole, getUser} from "../../../utils/utils";
 
 const props = defineProps({})
 
@@ -130,6 +130,12 @@ const data = reactive({
   types: [],
   markQuestions:[],
   showIndex: 0
+})
+const roleKeys = reactive({
+  mark: {
+    teacher: 'yj-t',
+    manage: 'yj-m'
+  },
 })
 
 /**

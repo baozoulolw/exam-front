@@ -1,4 +1,5 @@
 import Cookies from "js-cookie";
+import $store from '../store/index'
 import {CodeToText} from 'element-china-area-data'
 
 export function transElIconName(iconName) {
@@ -75,4 +76,24 @@ export function dateFormat (date, format) {
   var mm = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
   var ss = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds());
   return YY + MM + DD +" "+hh + mm + ss;
+}
+
+export function checkHasRole(keys) {
+  let plat = Cookies.get('platform');
+  let key = keys[plat];
+  let roleTree = $store.state.roleTree;
+  let check = function (tree,key){
+    if(tree && tree.length > 0){
+      return tree.some(i => {
+        if(i.onlyKey === key){
+          return true;
+        }else{
+          return check(i.children,key)
+        }
+      })
+    }else{
+      return false;
+    }
+  }
+  return check(roleTree, key);
 }

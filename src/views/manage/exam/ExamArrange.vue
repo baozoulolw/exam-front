@@ -19,7 +19,7 @@
       >
       </el-date-picker>
       <el-button @click="toSearch" :loading="data.searchLoad" type="primary">搜索</el-button>
-      <el-button @click="addExam" type="primary" plain>添加考试</el-button>
+      <el-button @click="addExam" type="primary" plain v-if="checkHasRole(roleKeys.add)">添加考试</el-button>
     </div>
     <el-table :data="data.tableData" border style="width: 100%" v-loading="data.searchLoad">
       <el-table-column label="序号" width="50" align='center' header-align='left'>
@@ -51,9 +51,9 @@
       <el-table-column label="操作" width="120">
         <template #default="scope">
           <div class="table-operate">
-            <span @click="editExam(scope.row)" class="item-span" v-if="data.params.param.condition === 0">编辑</span>
-            <el-divider direction="vertical" v-if="data.params.param.condition === 0"></el-divider>
-            <span @click='delQuestion(scope.row)' class="item-span" v-if="data.params.param.condition === 0">删除</span>
+            <span @click="editExam(scope.row)" class="item-span" v-if="data.params.param.condition === 0 && checkHasRole(roleKeys.edit)">编辑</span>
+            <el-divider direction="vertical" v-if="data.params.param.condition === 0 && checkHasRole(roleKeys.edit) && checkHasRole(roleKeys.del) "></el-divider>
+            <span @click='delQuestion(scope.row)' class="item-span" v-if="data.params.param.condition === 0 && checkHasRole(roleKeys.del)">删除</span>
           </div>
         </template>
       </el-table-column>
@@ -186,7 +186,7 @@ import {ElMessage} from "element-plus";
 import {
   Delete
 } from '@element-plus/icons'
-import {dateFormat, deepCloneObj, getObjByType} from "../../../utils/utils";
+import {checkHasRole, dateFormat, deepCloneObj, getObjByType} from "../../../utils/utils";
 
 const props = defineProps({})
 
@@ -396,6 +396,20 @@ const data = reactive({
   userGroups: [],
   editType:'add',
   oldName:''
+})
+const roleKeys = reactive({
+  add: {
+    teacher: 'tjks-t',
+    manage: 'tjks-m'
+  },
+  del:{
+    teacher: 'scks-t',
+    manage:'scks-m'
+  },
+  edit:{
+    teacher: 'bjks-t',
+    manage:'bjks-m'
+  },
 })
 
 /**

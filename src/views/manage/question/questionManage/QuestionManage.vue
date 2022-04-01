@@ -3,7 +3,7 @@
     <div class="left">
       <header class="left-head">
         <span>试题分类</span>
-        <t-button shape="square" variant="outline" @click="addGroup">
+        <t-button shape="square" variant="outline" @click="addGroup" v-if="checkHasRole(roleKeys.addGroup)">
           <template #icon>
             <add-icon size="large"/>
           </template>
@@ -25,9 +25,9 @@
             </el-icon>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item :command="{type:'trans',param:item}">转移分类</el-dropdown-item>
-                <el-dropdown-item :command="{type:'edit',param:item}" v-if="item.id !== '1'">编辑分类</el-dropdown-item>
-                <el-dropdown-item :command="{type:'del',param:item}" v-if="item.id !== '1'">删除分类</el-dropdown-item>
+                <el-dropdown-item :command="{type:'trans',param:item}" v-if="checkHasRole(roleKeys.transGroup)">转移分类</el-dropdown-item>
+                <el-dropdown-item :command="{type:'edit',param:item}" v-if="item.id !== '1' && checkHasRole(roleKeys.transGroup)">编辑分类</el-dropdown-item>
+                <el-dropdown-item :command="{type:'del',param:item}" v-if="item.id !== '1' && checkHasRole(roleKeys.delGroup)">删除分类</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -83,11 +83,11 @@
         <el-table-column label="操作" width="190">
           <template #default="scope">
             <div class="table-operate">
-              <span @click="changeGroup(scope.row)" class="item-span">更改分组</span>
-              <el-divider direction="vertical"></el-divider>
-              <span @click="edit(scope.row)" class="item-span">编辑</span>
-              <el-divider direction="vertical"></el-divider>
-              <span @click='delQuestion(scope.row)' class="item-span">删除</span>
+              <span @click="changeGroup(scope.row)" class="item-span" v-if="checkHasRole(roleKeys.trans)">更改分组</span>
+              <el-divider direction="vertical" v-if="checkHasRole(roleKeys.trans)"></el-divider>
+              <span @click="edit(scope.row)" class="item-span" v-if="checkHasRole(roleKeys.edit)">编辑</span>
+              <el-divider direction="vertical" v-if="checkHasRole(roleKeys.edit) && checkHasRole(roleKeys.del)"></el-divider>
+              <span @click='delQuestion(scope.row)' class="item-span" v-if="checkHasRole(roleKeys.del)">删除</span>
             </div>
           </template>
         </el-table-column>
@@ -177,7 +177,7 @@ import {
   Filter,
 } from '@element-plus/icons'
 import EditQuestion from "./EditQuestion.vue";
-import {getObjByType} from "../../../../utils/utils";
+import {checkHasRole, getObjByType} from "../../../../utils/utils";
 
 const router = useRouter(); //路由
 
@@ -240,6 +240,41 @@ const data = reactive({
   editGroupId:'',
   changeGroupId:''
 })
+const roleKeys = reactive({
+  add: {
+    teacher: 'tjst-t',
+    manage: 'tjst-m'
+  },
+  addGroup: {
+    teacher: 'tjstfl-t',
+    manage:'tjstfl-m'
+  },
+  editGroup:{
+    teacher: 'bjstfl-t',
+    manage:'bjstfl-m'
+  },
+  transGroup:{
+    teacher: 'zystfl-t',
+    manage:'zystfl-m'
+  },
+  delGroup:{
+    teacher: 'scstfl-t',
+    manage:'scstfl-m'
+  },
+  del:{
+    teacher: 'scst-t',
+    manage:'scst-m'
+  },
+  trans:{
+    teacher: 'ggstfl-t',
+    manage:'ggstfl-m'
+  },
+  edit:{
+    teacher: 'bjst-t',
+    manage:'bjst-m'
+  },
+})
+
 watch(() => data.showList,
     (n, o) => {
       if (n) {

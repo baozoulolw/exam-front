@@ -21,7 +21,7 @@
         ></el-option>
       </el-select>
       <el-button @click="toSearch" :loading="data.searchLoad" type="primary">搜索</el-button>
-      <el-button @click="creatPaper" type="primary" plain>创建试卷</el-button>
+      <el-button @click="creatPaper" type="primary" plain v-if="checkHasRole(roleKeys.add)">创建试卷</el-button>
     </div>
     <el-scrollbar v-loading="data.paperLoad" :view-class="['papers',{'em':data.papers.length === 0}]"
                   wrap-class="paper-warp">
@@ -35,8 +35,8 @@
             </el-button>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item :icon="Edit" @click.native="editOnePaper(item)">编辑</el-dropdown-item>
-                <el-dropdown-item :icon="Delete" @click.native="deletePaper(item.id)">删除</el-dropdown-item>
+                <el-dropdown-item :icon="Edit" @click.native="editOnePaper(item)" v-if="checkHasRole(roleKeys.edit)">编辑</el-dropdown-item>
+                <el-dropdown-item :icon="Delete" @click.native="deletePaper(item.id)" v-if="checkHasRole(roleKeys.del)">删除</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -70,6 +70,7 @@ import {useRouter} from "vue-router";
 import {ElMessage, ElMessageBox} from "element-plus";
 import EditPaper from "./EditPaper.vue";
 import {Delete, Edit, More} from '@element-plus/icons'
+import {checkHasRole} from "../../../../utils/utils";
 
 
 const router = useRouter(); //路由
@@ -96,6 +97,21 @@ const data = reactive({
   type: 'add',
   editPaper:''
 })
+const roleKeys = reactive({
+  add: {
+    teacher: 'cjsj-t',
+    manage: 'cjsj-m'
+  },
+  edit:{
+    teacher: 'bjsj-t',
+    manage: 'bjsj-m'
+  },
+  del:{
+    teacher: 'scsj-t',
+    manage: 'scsj-m'
+  }
+})
+
 watch(
     () => data.visible,
     n => {

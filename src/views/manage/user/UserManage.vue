@@ -3,7 +3,7 @@
     <div class="left">
       <header class="left-head">
         <span>成员分组</span>
-        <t-button shape="square" variant="outline" @click="addGroup">
+        <t-button shape="square" variant="outline" @click="addGroup" v-if="checkHasRole(roleKeys.addGroup)">
           <template #icon>
             <add-icon size="large"/>
           </template>
@@ -33,9 +33,9 @@
             </el-icon>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item :command="{type:'trans',param:item}">转移分类</el-dropdown-item>
-                <el-dropdown-item :command="{type:'edit',param:item}" v-if="item.id !== '1'">编辑分类</el-dropdown-item>
-                <el-dropdown-item :command="{type:'del',param:item}" v-if="item.id !== '1'">删除分类</el-dropdown-item>
+                <el-dropdown-item :command="{type:'trans',param:item}" v-if="checkHasRole(roleKeys.transGroup)">转移分类</el-dropdown-item>
+                <el-dropdown-item :command="{type:'edit',param:item}" v-if="item.id !== '1' && checkHasRole(roleKeys.editGroup)">编辑分类</el-dropdown-item>
+                <el-dropdown-item :command="{type:'del',param:item}" v-if="item.id !== '1' && checkHasRole(roleKeys.delGroup)">删除分类</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -47,7 +47,7 @@
       <div class="search">
         <el-input v-model="data.params.param.keyword" placeholder="输入关键字" class="margin-r wit-3"></el-input>
         <el-button @click="toSearch" :loading="data.searchLoad">搜索</el-button>
-        <el-button @click="addUser">添加人员</el-button>
+        <el-button @click="addUser" v-if="checkHasRole(roleKeys.addUser)">添加人员</el-button>
       </div>
       <!--用户表格-->
       <!--            <el-table :data="data.tableData" border style="width: 100%" v-loading="data.tableLoad">
@@ -84,7 +84,7 @@
                       </template>
                     </el-table-column>
                   </el-table>-->
-      <el-scrollbar>
+      <el-scrollbar v-loading="data.tableLoad">
         <div class="users">
           <section v-for="item in data.tableData" class="item-user" style="position: relative">
             <el-dropdown style="position: absolute;z-index: 9;right:10px;top:10px" @command="handleItemCommand">
@@ -105,9 +105,9 @@
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item :icon="Avatar" :command="{type:'info',param:item}">查看信息</el-dropdown-item>
-                  <el-dropdown-item :icon="Delete" :command="{type:'del',param:item}">删除</el-dropdown-item>
-                  <el-dropdown-item :icon="Paperclip" :command="{type:'role',param:item}">绑定角色</el-dropdown-item>
-                  <el-dropdown-item :icon="Switch" :command="{type:'trans',param:item}">转移分类</el-dropdown-item>
+                  <el-dropdown-item :icon="Delete" :command="{type:'del',param:item}" v-if="checkHasRole(roleKeys.delUser)">删除</el-dropdown-item>
+                  <el-dropdown-item :icon="Paperclip" :command="{type:'role',param:item}" v-if="checkHasRole(roleKeys.bindRole)">绑定角色</el-dropdown-item>
+                  <el-dropdown-item :icon="Switch" :command="{type:'trans',param:item}" v-if="checkHasRole(roleKeys.transUser)">转移分类</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -262,7 +262,7 @@ import role from '@/assets/img/role.svg';
 import phone from '@/assets/img/phone.svg';
 import UserInfo from "./UserInfo.vue";
 import {AddIcon, EllipsisIcon} from 'tdesign-icons-vue-next';
-import {getAddressStringByCode, getObjByType, getUser} from '../../../utils/utils';
+import {checkHasRole, getAddressStringByCode, getObjByType, getUser} from '../../../utils/utils';
 import {
   Filter, Delete, Avatar, MoreFilled, Paperclip,Switch
 } from '@element-plus/icons'
@@ -315,6 +315,41 @@ const data = reactive({
   bindRoleLoad:false,
   infoVisible:false,
   showUser:''
+})
+
+const roleKeys = reactive({
+  addUser: {
+    teacher: 'tjcy-t',
+    manage: 'tjcy-m'
+  },
+  addGroup: {
+    teacher: 'utjfz-t',
+    manage:'utjfz-m'
+  },
+  editGroup:{
+    teacher: 'ubjfl-t',
+    manage:'ubjfl-m'
+  },
+  transGroup:{
+    teacher: 'uzyfl-t',
+    manage:'uzyfl-m'
+  },
+  delGroup:{
+    teacher: 'uscfl-t',
+    manage:'uscfl-m'
+  },
+  delUser:{
+    teacher: 'usccy-t',
+    manage:'usccy-m'
+  },
+  transUser:{
+    teacher: 'usccy-t',
+    manage:'uizyfl-m'
+  },
+  bindRole:{
+    teacher: 'bdjs-t',
+    manage:'bdjs-m'
+  }
 })
 
 // 获取用户列表表格数据
