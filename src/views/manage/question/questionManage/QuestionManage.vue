@@ -177,9 +177,10 @@ import {
   Filter,
 } from '@element-plus/icons'
 import EditQuestion from "./EditQuestion.vue";
-import {checkHasRole, getObjByType} from "../../../../utils/utils";
+import {checkHasRole, getObjByType, getUser} from "../../../../utils/utils";
 
 const router = useRouter(); //路由
+const userInfo = getUser();
 
 const data = reactive({
   params: {
@@ -188,7 +189,8 @@ const data = reactive({
     param: {
       keyword: '',
       type: '',
-      hard: ''
+      hard: '',
+      createUser:''
     }
   },
   transGroupVisible:false,
@@ -273,6 +275,10 @@ const roleKeys = reactive({
     teacher: 'bjst-t',
     manage:'bjst-m'
   },
+  search:{
+    teacher:'cktk-t',
+    manage:'cktk-m'
+  }
 })
 
 watch(() => data.showList,
@@ -284,6 +290,12 @@ watch(() => data.showList,
     })
 const getQuestionList = async () => {
   data.tableLoad = true;
+  if(!checkHasRole(roleKeys.search)){
+    console.log(userInfo)
+    data.params.param.createUser = userInfo.id;
+  }else{
+    data.params.param.createUser = '';
+  }
   let res = await post('/question/page', data.params);
   if (res.status === 1000) {
     data.tableData = res.data.list;
@@ -305,7 +317,11 @@ const addGroup = () => {
   data.groupVisible = true;
 }
 const getGroupList = async () => {
-  let res = await get('/question/group/list');
+  let flag = 0
+  if(!checkHasRole(roleKeys.search)){
+    flag=1
+  }
+  let res = await get('/question/group/list/'+flag);
   if (res.status === 1000) {
     data.groupList = res.data;
   } else {

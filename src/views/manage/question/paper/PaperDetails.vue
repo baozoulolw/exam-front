@@ -253,6 +253,10 @@ const roleKeys = reactive({
   score:{
     teacher: 'tzfz-t',
     manage: 'tzfz-m'
+  },
+  search:{
+    teacher:'cktk-t',
+    manage:'cktk-m'
   }
 })
 

@@ -49,6 +49,7 @@ import {reactive, onMounted} from 'vue'
 import {get, post} from "../../../../http/request";
 import {ElMessage} from "element-plus";
 import { Icon } from 'tdesign-icons-vue-next';
+import {checkHasRole, getUser} from "../../../../utils/utils";
 
 const props = defineProps({
   paperId: String,
@@ -56,6 +57,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:selectId'])
+const userInfo = getUser();
 
 const data = reactive({
   visible: true,
@@ -67,7 +69,8 @@ const data = reactive({
       type: '',
       hard: '',
       selectPaperId: props.paperId,
-      groupId:''
+      groupId:'',
+      createUser:''
     }
   },
   groupList:[],
@@ -93,12 +96,23 @@ const data = reactive({
     {colKey: 'hard', title: '难度', cell: 'hard', width: 100}
   ]
 })
+const roleKeys = reactive({
+  search:{
+    teacher:'cktk-t',
+    manage:'cktk-m'
+  }
+})
 
 /**
  * 网络请求
  */
 const getQuestions = async () => {
   data.tableLoad = true;
+  if(!checkHasRole(roleKeys.search)){
+    data.searchParam.param.createUser = userInfo.id;
+  }else{
+    data.searchParam.param.createUser = '';
+  }
   let res = await post('/question/page', data.searchParam);
   if (res.status === 1000) {
     data.tableData = res.data.list;
@@ -110,7 +124,11 @@ const getQuestions = async () => {
 }
 
 const getGroupList = async () => {
-  let res = await get('/question/group/list');
+  let flag = 0
+  if(!checkHasRole(roleKeys.search)){
+    flag=1
+  }
+  let res = await get('/question/group/list/'+ flag);
   if (res.status === 1000) {
     data.groupList = res.data;
   } else {
