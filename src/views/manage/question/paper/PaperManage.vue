@@ -70,7 +70,7 @@ import {useRouter} from "vue-router";
 import {ElMessage, ElMessageBox} from "element-plus";
 import EditPaper from "./EditPaper.vue";
 import {Delete, Edit, More} from '@element-plus/icons'
-import {checkHasRole} from "../../../../utils/utils";
+import {checkHasRole, getUser} from "../../../../utils/utils";
 
 
 const router = useRouter(); //路由
@@ -84,7 +84,8 @@ const data = reactive({
     pageNum: 1,
     param: {
       keyword: '',
-      hard: ''
+      hard: '',
+      drawer:''
     },
   },
   qHards: [
@@ -109,6 +110,10 @@ const roleKeys = reactive({
   del:{
     teacher: 'scsj-t',
     manage: 'scsj-m'
+  },
+  search:{
+    teacher: 'cksysj-t',
+    manage: 'cksysj-m'
   }
 })
 
@@ -122,8 +127,16 @@ watch(
 const delPaper = async (id) =>{
   return await get(`/paper/del/${id}`);
 }
+
+const userInfo = getUser();
+
 const getPaper = async () => {
   data.paperLoad = true;
+  if(!checkHasRole(roleKeys.search)){
+    data.params.param.drawer = getUser().id;
+  }else{
+    data.params.param.drawer = "";
+  }
   let res = await post('/paper/page', data.params);
   if (res.status === 1000) {
     data.papers = res.data.list;
