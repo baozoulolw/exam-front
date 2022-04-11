@@ -186,7 +186,7 @@ import {ElMessage} from "element-plus";
 import {
   Delete
 } from '@element-plus/icons'
-import {checkHasRole, dateFormat, deepCloneObj, getObjByType} from "../../../utils/utils";
+import {checkHasRole, dateFormat, deepCloneObj, getObjByType, getUser} from "../../../utils/utils";
 
 const props = defineProps({})
 
@@ -277,7 +277,8 @@ const data = reactive({
       keyword: '',
       condition: 0,
       beginTime: '',
-      endTime: ''
+      endTime: '',
+      createUser:''
     }
   },
   searchLoad: false,
@@ -381,7 +382,8 @@ const data = reactive({
     endTime: '',
     duration: '',
     attention: '',
-    userGroupIds: []
+    userGroupIds: [],
+    createUser:''
   },
   rules: {
     examName:[{required: true, message: '请输入考试名', trigger: 'blur'},{validator: checkExamName, trigger: 'blur'}],
@@ -410,12 +412,25 @@ const roleKeys = reactive({
     teacher: 'bjks-t',
     manage:'bjks-m'
   },
+  seeAll:{
+    teacher:'cksyks-t',
+    manage:'cksyks-m'
+  },
+  seeAllPaper:{
+    teacher: 'cksysj-t',
+    manage: 'cksysj-m'
+  }
 })
 
 /**
  * 网络请求
  */
 const getExamList = async () => {
+  if(!checkHasRole(roleKeys.seeAll)){
+    data.params.param.createUser = userInfo.id;
+  }else{
+    data.params.param.createUser = '';
+  }
   let res = await post('/exam/list', data.params);
   if (res.status === 1000) {
     data.tableData = res.data.list;
@@ -440,6 +455,11 @@ const getPapers = async () => {
     pageNum: 1,
     param: {},
   };
+  if(!checkHasRole(roleKeys.seeAllPaper)){
+    params.param.drawer = userInfo.id;
+  }else{
+    params.param.drawer = "";
+  }
   let res = await post('/paper/page', params);
   if (res.status === 1000) {
     data.papers = res.data.list;
@@ -448,8 +468,12 @@ const getPapers = async () => {
   }
 }
 
+
+const userInfo = getUser();
+
 const addExamQuest = async(param) => {
   data.diaLoad = true;
+  param.createUser = userInfo.id;
   const res = await post('/exam/arrange',param);
   data.diaLoad = false;
   if(res.status === 1000){

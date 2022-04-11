@@ -209,13 +209,15 @@
 import {reactive, onMounted, computed} from 'vue'
 import {get, post} from "../../../http/request";
 import {ElMessage} from "element-plus";
-import {checkHasRole} from "../../../utils/utils";
+import {checkHasRole, getUser} from "../../../utils/utils";
 
 const props = defineProps({})
 
 const emit = defineEmits([])
 
 let showQuestion = computed(() => data.showQuestions[data.showIndex]);
+
+const userInfo = getUser();
 
 const data = reactive({
   params:{
@@ -225,7 +227,8 @@ const data = reactive({
       keyword:'',
       examId:'',
       userId:'',
-      groupId:''
+      groupId:'',
+      createUser:'',
     }
   },
   groups:[],
@@ -242,12 +245,21 @@ const roleKeys = reactive({
     teacher: 'ckdj-t',
     manage: 'ckdj-m'
   },
+  seeAll: {
+    teacher: 'cksycj-t',
+    manage: 'cksycj-m'
+  },
 })
 
 /**
  * 网络请求
  */
 const getRecords = async() => {
+  if(!checkHasRole(roleKeys.seeAll)){
+    data.params.param.createUser = userInfo.id;
+  }else{
+    data.params.param.createUser = '';
+  }
   let res = await post('/exam/record/list',data.params);
   if(res.status === 1000){
     data.tableData = res.data.list;

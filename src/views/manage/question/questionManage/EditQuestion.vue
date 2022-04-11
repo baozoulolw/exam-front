@@ -147,7 +147,7 @@ const data = reactive({
     hard: 0,
     options: '',
     answer: '',
-    group:'',
+    group:''
   },
   types: [
     {value: 0, label: '单选题'},

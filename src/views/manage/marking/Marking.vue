@@ -107,6 +107,7 @@ import {checkHasRole, getUser} from "../../../utils/utils";
 const props = defineProps({})
 
 const emit = defineEmits([])
+const userInfo = getUser();
 
 const data = reactive({
   params: {
@@ -117,7 +118,8 @@ const data = reactive({
       examId: '',
       userId: '',
       groupId: '',
-      marking: 1
+      marking: 1,
+      createUser:''
     }
   },
   groups: [],
@@ -136,12 +138,21 @@ const roleKeys = reactive({
     teacher: 'yj-t',
     manage: 'yj-m'
   },
+  seeAll: {
+    teacher: 'cksyyj-t',
+    manage: 'cksyyj-m'
+  }
 })
 
 /**
  * 网络请求
  */
 const getRecords = async () => {
+  if(!checkHasRole(roleKeys.seeAll)){
+    data.params.param.createUser = userInfo.id;
+  }else{
+    data.params.param.createUser = '';
+  }
   let res = await post('/exam/record/list', data.params);
   if (res.status === 1000) {
     data.tableData = res.data.list;
@@ -229,8 +240,6 @@ const confirmMarking = async() => {
     ElMessage.error(res.desc);
   }
 }
-
-const userInfo = getUser();
 
 const handleChange = () => {
   data.markQuestions[data.showIndex].myAnswer.marking = false;
