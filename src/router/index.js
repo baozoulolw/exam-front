@@ -57,6 +57,13 @@ const routes = [
               title:'资源管理'
             },
             component:() => import('../views/manage/resource/ResourceManage.vue')
+          },
+          {
+            path:'/course',
+            meta:{
+              title:'课程管理'
+            },
+            component:() => import('../views/manage/course/CourseManage.vue')
           }
         ]
       },
@@ -103,6 +110,12 @@ const routes = [
               title:'题库管理'
             },
             component:() => import('../views/manage/question/questionManage/QuestionManage.vue')
+          },{
+            path:'/questions2',
+            meta:{
+              title:'题库管理2'
+            },
+            component:() => import('../views/manage/question/questionManage/QuestionManage2.vue')
           },
           {
             path:'/paper',

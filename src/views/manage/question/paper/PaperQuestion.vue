@@ -3,10 +3,12 @@
     <div class="search-q">
       <t-input class="mr-12" style="width: 300px" v-model="data.searchParam.param.keyword" clearable
                placeholder="请输入关键词"/>
-      <t-select class="mr-12" v-model="data.searchParam.param.groupId" placeholder="请选择分类"
-                clearable style="width: 150px">
-        <t-option v-for="item in data.groupList" :key="item.id" :label="`${item.groupName} (${item.questionNumber})`" :value="item.id"></t-option>
-      </t-select>
+      <t-cascader v-model="data.searchParam.param.groupId" :options="data.groupList.map(i => {
+              if(i.children.length === 0){
+                i.disabled = true;
+              }
+              return i
+            })" class="mr-12" clearable size="medium" placeholder="请选择课程" :keys="{ label: 'groupName', value: 'id'}" style="width: 150px"/>
       <t-select class="mr-12" v-model="data.searchParam.param.type" :options="data.qTypes" placeholder="请选择题型"
                 clearable style="width: 150px"/>
       <t-select class="mr-12" v-model="data.searchParam.param.hard" :options="data.qHards" placeholder="请选择难度"
@@ -50,6 +52,7 @@ import {get, post} from "../../../../http/request";
 import {ElMessage} from "element-plus";
 import { Icon } from 'tdesign-icons-vue-next';
 import {checkHasRole, getUser} from "../../../../utils/utils";
+import {MessagePlugin} from "tdesign-vue-next";
 
 const props = defineProps({
   paperId: String,
@@ -150,6 +153,10 @@ const onCurrentChange = val => {
   getQuestions();
 }
 const toSearch = () => {
+  if(!data.searchParam.param.groupId){
+    MessagePlugin.error('请选择课程');
+    return;
+  }
   data.searchParam.pageNumber = 1;
   getQuestions();
 
@@ -162,7 +169,7 @@ const rehandleSelectChange = (value, {selectedRowData}) => {
 onMounted(() => {
   data.selectedRowKeys = props.selectId;
   getGroupList();
-  toSearch();
+  //toSearch();
 })
 </script>
 

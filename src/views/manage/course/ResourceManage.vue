@@ -5,14 +5,13 @@
         <el-option v-for="item in data.platforms" :key="item.value" :label="item.label" :value="item.value"/>
       </el-select>
       <el-input v-model="data.keyword" placeholder="输入关键字过滤筛选" class="margin-r wit-3"></el-input>
-      <el-button @click="addResource(1)" v-if="checkHasRole(roleKeys.addRoot)" class="mr-12">添加根资源</el-button>
+      <el-button @click="addResource(1)" v-if="checkHasRole(roleKeys.addRoot)">添加根资源</el-button>
     </div>
     <div class="body">
       <div class="left" v-loading="data.treeLoad">
         <el-scrollbar style="height: calc(100vh - 300px);">
           <el-tree :data="data.treeData" ref="tree" @node-click="handleNodeClick" :props="data.props"
-                   :expand-on-click-node="true" :filter-node-method="filterNode"
-                   v-if="!data.treeLoad" :default-expanded-keys="data.defaultExpandKeys"/>
+                   :filter-node-method="filterNode"/>
         </el-scrollbar>
       </div>
       <div class="right">
@@ -185,26 +184,24 @@ const data = reactive({
       {validator: checkKey, trigger: 'blur'}],
     icon: [{required: true, message: '请选择图标', trigger: 'blur'}]
   },
-  showResource: '',
-  expandAll:true,
-  defaultExpandKeys:[]
+  showResource: ''
 })
 const roleKeys = reactive({
   addRoot: {
-    teacher: 'tjkc-t',
-    manage: 'tjkc-m'
+    teacher: 'tjgzy-t',
+    manage: 'tjgzy-m'
   },
   edit: {
-    teacher: 'bjkc-t',
-    manage: 'bjkc-m'
+    teacher: 'bjzy-t',
+    manage: 'bjzy-m'
   },
   del: {
-    teacher: 'sckc-t',
-    manage: 'sckc-m'
+    teacher: 'sczy-t',
+    manage: 'sczy-m'
   },
   add: {
-    teacher: 'xzzkc-t',
-    manage: 'xzzkc-m'
+    teacher: 'xzzzy-t',
+    manage: 'xzzzy-m'
   },
 })
 
@@ -229,7 +226,6 @@ const addResource = (root) => {
   data.resourceTypes[0].disabled = false;
   data.resourceTypes[1].disabled = true;
   data.resource.isRoot = root;
-  data.defaultExpandKeys = [data.showResource.id];
   data.addShow = true;
 }
 
@@ -312,7 +308,6 @@ const delResource = () => {
 const editResource = () => {
   let {id, isRoot, path, icon, type, resourceName, note, weights, onlyKey} = data.showResource;
   data.resource = {id, isRoot, path, icon, type, resourceName, note, weights, onlyKey};
-  data.defaultExpandKeys = [data.resource.id];
   data.addShow = true;
 }
 
@@ -344,7 +339,6 @@ const addChildren = () => {
     data.resourceTypes[0].disabled = true;
     data.resourceTypes[1].disabled = false;
   }
-  data.defaultExpandKeys = [data.showResource.id];
   data.addShow = true;
 }
 
@@ -379,9 +373,6 @@ onMounted(() => {
       padding: 12px;
       border-radius: 6px;
       min-width: 370px;
-      :deep(.el-tree-node__content) {
-        height: 32px;
-      }
     }
 
     .right {

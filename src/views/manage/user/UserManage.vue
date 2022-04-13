@@ -108,6 +108,7 @@
                   <el-dropdown-item :icon="Delete" :command="{type:'del',param:item}" v-if="checkHasRole(roleKeys.delUser)">删除</el-dropdown-item>
                   <el-dropdown-item :icon="Paperclip" :command="{type:'role',param:item}" v-if="checkHasRole(roleKeys.bindRole)">绑定角色</el-dropdown-item>
                   <el-dropdown-item :icon="Switch" :command="{type:'trans',param:item}" v-if="checkHasRole(roleKeys.transUser)">转移分类</el-dropdown-item>
+                  <el-dropdown-item :icon="Switch" :command="{type:'course',param:item}" v-if="checkHasRole(roleKeys.transUser)">绑定课程</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -201,6 +202,15 @@
         <el-checkbox v-for="item in data.roleList" :label="item.id" border
                      :disabled="['1','2','3'].includes(item.id)"
         >{{item.roleName}}</el-checkbox>
+      </el-checkbox-group>
+    </el-dialog>
+
+    <el-dialog v-model="data.bindCourseVisible" title="绑定课程" width="700px"
+               :before-close="bindCourseClose" :close-on-click-modal="false" :destroy-on-close="true">
+      <el-input v-model="data.filterCourse" style="margin-bottom: 20px" placeholder="输入关键词过滤"></el-input>
+      <el-checkbox-group v-model="data.selfCourseList" @change="bindCourseChange" v-loading="data.bindCourseLoad" class="roleCheck">
+        <el-checkbox v-for="item in showCourse" :label="item.id" border
+        >{{item.groupName}}</el-checkbox>
       </el-checkbox-group>
     </el-dialog>
   </div>
@@ -314,7 +324,13 @@ const data = reactive({
   changeGroupId: '',
   bindRoleLoad:false,
   infoVisible:false,
-  showUser:''
+  showUser:'',
+  bindCourseVisible:false,
+  filterCourse:'',
+  bindCourseLoad:false,
+  courseList:[],
+  bindUserId:'',
+  selfCourseList:[]
 })
 
 const roleKeys = reactive({
@@ -427,6 +443,18 @@ const onConfirmGroupDia = () => {
 const bindRoleClose = () => {
   data.bindRoleVisible = false;
 }
+
+const bindCourseClose = () => {
+  data.bindCourseVisible = false;
+}
+
+const showCourse = computed(() =>{
+  if(data.filterCourse.trim()){
+    return data.courseList.filter(i => i.groupName.includes(data.filterCourse.trim()))
+  }else{
+    return  data.courseList
+  }
+})
 const bindRoleChange = async(val) => {
   data.bindRoleLoad = true;
   let roleId;
@@ -456,6 +484,41 @@ const bindRoleChange = async(val) => {
     data.selfRoleList = JSON.parse(JSON.stringify(data.oldSelfRoleList));
   }
   data.bindRoleLoad = false;
+}
+
+const bindCourseChange = async(val) => {
+  data.bindCourseLoad = true;
+  let courseId;
+  let type;
+  if(val.length > data.oldSelfCourseList.length){
+    type = 1;
+    if(data.oldSelfCourseList.length === 0){
+      courseId = val[0];
+    }else{
+      val.some(i => {
+        if(!data.oldSelfCourseList.includes(i)){
+          courseId = i;
+          return true;
+        }
+      })
+    }
+  }else{
+    type = 0;
+    data.oldSelfCourseList.some(oi => {
+      if(!val.includes(oi)){
+        courseId = oi;
+        return true;
+      }
+    })
+  }
+  let res = await get(`/user/course/bind/${courseId}/${data.bindUserId}/${type}`);
+  if(res.status === 1000){
+    data.oldSelfCourseList = JSON.parse(JSON.stringify(val));
+  }else{
+    ElMessage.error(res.desc);
+    data.selfCourseList = JSON.parse(JSON.stringify(data.oldSelfCourseList));
+  }
+  data.bindCourseLoad = false;
 }
 
 const changeGroup = item => {
@@ -491,11 +554,45 @@ const handleItemCommand = ({type, param}) => {
     bindRole(param);
   }else if (type === 'trans') {
     changeGroup(param);
+  }else if (type === 'course') {
+    bindCourse(param)
   }
+}
+
+const bindCourse = async(param) =>{
+  data.bindCourseVisible = true;
+  data.bindCourseLoad = true;
+  data.bindUserId = param.id;
+  await getBindCourse();
+  await getAllCourse();
+  data.bindCourseLoad = false;
 }
 
 const transUser = (param) => {
 
+}
+
+const getBindCourse = async () => {
+  data.bindCourseLoad = true;
+  let res = await get(`/user/course/${data.bindUserId}`);
+  data.bindCourseLoad = false;
+  if(res.status === 1000){
+    data.selfCourseList = res.data;
+    data.oldSelfCourseList = res.data.map(i => i);
+  }else{
+    ElMessage.error(res.desc);
+  }
+}
+
+const getAllCourse = async () => {
+  data.bindCourseLoad = true;
+  let res = await get(`/user/course/all`);
+  data.bindCourseLoad = false;
+  if(res.status === 1000){
+    data.courseList = res.data;
+  }else{
+    ElMessage.error(res.desc);
+  }
 }
 
 const delItem = (param) => {
@@ -681,7 +778,7 @@ onMounted(() => {
   display: flex;
 
   .left {
-    min-width: 200px;
+    min-width: 250px;
     height: 100%;
     padding: 0 20px 0 0;
     border-right: 1px solid var(--el-border-color-base);
@@ -714,7 +811,7 @@ onMounted(() => {
         .name {
           margin-right: auto;
           display: inline-block;
-          max-width: 130px;
+          max-width: 180px;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
