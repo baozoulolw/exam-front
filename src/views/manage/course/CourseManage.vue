@@ -109,20 +109,20 @@ const data = reactive({
 })
 const roleKeys = reactive({
   addRoot: {
-    teacher: 'tjgzy-t',
-    manage: 'tjgzy-m'
+    teacher: 'tjkc-t',
+    manage: 'tjkc-m'
   },
   edit: {
-    teacher: 'bjzy-t',
-    manage: 'bjzy-m'
+    teacher: 'bjkc-t',
+    manage: 'bjkc-m'
   },
   del: {
-    teacher: 'sczy-t',
-    manage: 'sczy-m'
+    teacher: 'sckc-t',
+    manage: 'sckc-m'
   },
   add: {
-    teacher: 'xzzzy-t',
-    manage: 'xzzzy-m'
+    teacher: 'xzzkc-t',
+    manage: 'xzzkc-m'
   },
 })
 
