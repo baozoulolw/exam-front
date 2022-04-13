@@ -108,7 +108,7 @@
                   <el-dropdown-item :icon="Delete" :command="{type:'del',param:item}" v-if="checkHasRole(roleKeys.delUser)">删除</el-dropdown-item>
                   <el-dropdown-item :icon="Paperclip" :command="{type:'role',param:item}" v-if="checkHasRole(roleKeys.bindRole)">绑定角色</el-dropdown-item>
                   <el-dropdown-item :icon="Switch" :command="{type:'trans',param:item}" v-if="checkHasRole(roleKeys.transUser)">转移分类</el-dropdown-item>
-                  <el-dropdown-item :icon="Switch" :command="{type:'course',param:item}" v-if="checkHasRole(roleKeys.transUser)">绑定课程</el-dropdown-item>
+                  <el-dropdown-item :icon="Switch" :command="{type:'course',param:item}" v-if="checkHasRole(roleKeys.bindCourse)">绑定课程</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -365,6 +365,10 @@ const roleKeys = reactive({
   bindRole:{
     teacher: 'bdjs-t',
     manage:'bdjs-m'
+  },
+  bindCourse:{
+    teacher: 'bdkc-t',
+    manage:'bdkc-m'
   }
 })
 
