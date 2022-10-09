@@ -48,26 +48,6 @@ export function deepCloneObj(obj) {
 }
 
 export function dateFormat (date, format) {
-  /*date = new Date(date);
-  date.setHours(date.getHours()-14);
-  let o = {
-    'M+' : date.getMonth() + 1, //month
-    'd+' : date.getDate(), //day
-    'H+' : date.getHours(), //hour
-    'm+' : date.getMinutes(), //minute
-    's+' : date.getSeconds(), //second
-    'q+' : Math.floor((date.getMonth() + 3) / 3), //quarter
-    'S' : date.getMilliseconds() //millisecond
-  };
-
-  if (/(y+)/.test(format))
-    format = format.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length));
-
-  for (let k in o)
-    if (new RegExp('(' + k + ')').test(format)){
-      format = format.replace(RegExp.$1, RegExp.$1.length == 1 ? o[k] : ('00' + o[k]).substr(('' + o[k]).length));
-    }
-  return format;*/
   var date = new Date(date);
   var YY = date.getFullYear() + '-';
   var MM = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
@@ -76,6 +56,17 @@ export function dateFormat (date, format) {
   var mm = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
   var ss = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds());
   return YY + MM + DD +" "+hh + mm + ss;
+}
+
+export function stringToDate (s) {
+  let d = new Date();
+  d.setFullYear(parseInt(s.substring(0,4),10));
+  d.setMonth(parseInt(s.substring(5,7)-1,10));
+  d.setDate(parseInt(s.substring(8,10),10));
+  d.setHours(parseInt(s.substring(11,13),10));
+  d.setMinutes(parseInt(s.substring(14,16),10));
+  d.setSeconds(parseInt(s.substring(17,19),10));
+  return d;
 }
 
 export function checkHasRole(keys) {

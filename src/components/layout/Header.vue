@@ -5,6 +5,7 @@
       <Expand v-if="proData.menuCollapse"/>
       <Fold v-else/>
     </el-icon>
+    <Bread style="margin-right: auto"></Bread>
     <div class="username">
       <el-icon :size="20">
         <User/>
@@ -198,6 +199,7 @@ import {
   Avatar, Fold, Expand, User, Edit,Check,Close
 } from '@element-plus/icons'
 import {get, post} from "../../http/request";
+import Bread from "./Bread.vue";
 
 
 const userInfo = getUser();
@@ -392,7 +394,7 @@ onMounted(() => {
   justify-content: flex-end;
 
   .collapse {
-    margin-right: auto;
+    margin-right: 20px;
     margin-left: 20px;
   }
 

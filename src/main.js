@@ -23,3 +23,5 @@ for (let iconName in ElIconModules) {
   app.component(transElIconName(iconName), ElIconModules[iconName])
 }
 app.mount('#app')
+
+
